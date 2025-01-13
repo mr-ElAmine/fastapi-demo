@@ -1,6 +1,7 @@
 annotated-types==0.7.0
 anyio==4.8.0
 astroid==3.3.8
+bcrypt==4.2.1
 black==24.10.0
 certifi==2024.12.14
 click==8.1.8
@@ -22,11 +23,13 @@ mccabe==0.7.0
 mdurl==0.1.2
 mypy-extensions==1.0.0
 packaging==24.2
+passlib==1.7.4
 pathspec==0.12.1
 platformdirs==4.3.6
 pydantic==2.10.5
 pydantic_core==2.27.2
 Pygments==2.19.1
+PyJWT==2.10.1
 pylint==3.3.3
 python-dotenv==1.0.1
 python-multipart==0.0.20
