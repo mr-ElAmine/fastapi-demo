@@ -5,8 +5,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
-
 
 @app.get("/")
 def index():
