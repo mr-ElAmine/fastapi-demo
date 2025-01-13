@@ -23,20 +23,15 @@ jobs:
         with:
           python-version: "3.x"
 
-      # Étape 3 : Mise en cache des dépendances
-      - name: Cache pip dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # Étape 3 : Création de l'environnement virtuel
+      - name: Create virtual environment
+        run: python -m venv .venv
 
       # Étape 4 : Installation des dépendances
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements.txt
 
       # Étape 5 : Vérification avec Black
       - name: Check code formatting with Black
@@ -51,4 +46,9 @@ jobs:
       # Étape 7 : Analyse de linting avec Pylint
       - name: Lint code with pylint
         run: |
-          .venv/bin/python -m pylint src/
+          .venv/bin/python -m pylint src
+
+      # Étape 8 : Exécution des tests
+      - name: Run tests
+        run: |
+          .venv/bin/python -m pytest
