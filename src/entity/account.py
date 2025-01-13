@@ -1,11 +1,32 @@
-import datetime
-from pydantic import BaseModel
+from datetime import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
+from sqlalchemy.orm import relationship
+
+from database.main import Base
 
 
-class Account(BaseModel):
-    id: int
-    user_id: int
-    balance: float
-    state: bool
-    is_main: bool
-    date: datetime
+# pylint: disable=too-few-public-methods
+class Account(Base):
+    __tablename__ = "accounts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    balance = Column(Float, nullable=False, default=0.0)
+    state = Column(Boolean, nullable=False, default=True)
+    is_main = Column(Boolean, nullable=False, default=False)
+    date = Column(DateTime, default=datetime.utcnow)
+
+    # Relations avec Transaction
+    transactions_sent = relationship(
+        "Transaction",
+        foreign_keys="Transaction.id_account_sender",
+        back_populates="sender_account",
+    )
+    transactions_received = relationship(
+        "Transaction",
+        foreign_keys="Transaction.id_account_receiver",
+        back_populates="receiver_account",
+    )
+
+    user = relationship("User", back_populates="accounts")

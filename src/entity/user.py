@@ -1,10 +1,18 @@
-from pydantic import BaseModel
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.orm import relationship
+
+from database.main import Base
 
 
-class User(BaseModel):
-    id: int
-    first_name: str
-    last_name: str
-    email: str
-    password: str
-    
+# pylint: disable=too-few-public-methods
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String, unique=True, nullable=False, index=True)
+    password = Column(String, nullable=False)
+
+    # Relation avec la table Account
+    accounts = relationship("Account", back_populates="user")
