@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
@@ -15,7 +15,7 @@ class Transaction(Base):
     state = Column(Boolean, nullable=False, default=False)
     id_account_sender = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     id_account_receiver = Column(Integer, ForeignKey("accounts.id"), nullable=False)
-    date = Column(DateTime, default=datetime.utcnow)
+    date = Column(DateTime, default=datetime.now(timezone.utc))
 
     # Relations avec Account
     sender_account = relationship("Account", foreign_keys=[id_account_sender])

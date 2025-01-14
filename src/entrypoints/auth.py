@@ -1,7 +1,11 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.main import get_database, save
+from database.main import get_database
+from entity.account import Account
+from entity.deposit import Deposit
 from entity.user import User
 from schema.user import LoginSchema, UserSchema
 from utile import create_access_token, hash_password, verify_password
@@ -10,9 +14,11 @@ router = APIRouter()
 
 
 @router.post("/login")
-def login_user(user_data: LoginSchema, db: Session = Depends(get_database)):
+def login_user(
+    user_data: LoginSchema, database_session: Session = Depends(get_database)
+):
 
-    user = db.query(User).filter(User.email == user_data.email).first()
+    user = database_session.query(User).filter(User.email == user_data.email).first()
     if not user:
         raise HTTPException(status_code=404, detail="Invalid email or password")
 
@@ -35,7 +41,6 @@ def register_user(
     existing_user = (
         database_session.query(User).filter(User.email == user_data.email).first()
     )
-
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already exists")
 
@@ -45,7 +50,25 @@ def register_user(
         email=user_data.email,
         password=hash_password(user_data.password),
     )
+    database_session.add(new_user)
+    database_session.flush()
 
-    save(database_session, new_user)
+    new_account = Account(
+        user_id=new_user.id,
+        balance=0,
+        state=True,
+        is_main=True,
+        date=datetime.now(timezone.utc),
+    )
+    database_session.add(new_account)
+    database_session.flush()
+
+    new_account.balance = 100
+    database_session.add(new_account)
+
+    deposit_record = Deposit(account_id=new_account.id, amount=100)
+    database_session.add(deposit_record)
+
+    database_session.commit()
 
     return {"status": "success", "message": "User created successfully"}
