@@ -2,7 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
- # pylint: disable=too-few-public-methods
+
+# pylint: disable=too-few-public-methods
 class TransactionSchema(BaseModel):
     id: int = Field(..., ge=1, description="Unique identifier for the transaction")
     amount: float = Field(..., gt=0.0, description="Transaction amount")

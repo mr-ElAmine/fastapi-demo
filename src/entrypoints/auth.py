@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.main import get_database, save
+from database.main import get_database
 from entity.account import Account
 from entity.deposit import Deposit
 from entity.user import User
@@ -14,7 +14,9 @@ router = APIRouter()
 
 
 @router.post("/login")
-def login_user(user_data: LoginSchema, database_session: Session = Depends(get_database)):
+def login_user(
+    user_data: LoginSchema, database_session: Session = Depends(get_database)
+):
 
     user = database_session.query(User).filter(User.email == user_data.email).first()
     if not user:
@@ -33,8 +35,12 @@ def login_user(user_data: LoginSchema, database_session: Session = Depends(get_d
 
 
 @router.post("/register")
-def register_user(user_data: UserSchema, database_session: Session = Depends(get_database)):
-    existing_user = database_session.query(User).filter(User.email == user_data.email).first()
+def register_user(
+    user_data: UserSchema, database_session: Session = Depends(get_database)
+):
+    existing_user = (
+        database_session.query(User).filter(User.email == user_data.email).first()
+    )
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already exists")
 
