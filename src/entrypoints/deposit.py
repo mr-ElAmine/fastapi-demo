@@ -5,13 +5,19 @@ from sqlalchemy.orm import Session
 from database.main import get_database
 from entity.account import Account
 from entity.deposit import Deposit
+from entity.user import User
 from schema.deposit import DepositCreateSchema
+from utile import get_current_user
 
 router = APIRouter()
 
 
 @router.post("/deposit")
-def deposit(deposit_data: DepositCreateSchema, db: Session = Depends(get_database)):
+def deposit(
+    deposit_data: DepositCreateSchema,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
     if deposit_data.amount <= 0:
         raise HTTPException(
             status_code=400, detail="The deposit amount must be greater than zero."
@@ -21,6 +27,12 @@ def deposit(deposit_data: DepositCreateSchema, db: Session = Depends(get_databas
     if not account:
         raise HTTPException(
             status_code=404, detail="The specified account does not exist."
+        )
+
+    if account.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorised.",
         )
 
     try:
