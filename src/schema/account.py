@@ -26,4 +26,8 @@ class AccountSchema(BaseModel):
     )
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+
+class AccountCreateSchema(BaseModel):
+    user_id: int = Field(..., ge=1, description="ID of the user who owns the account")
