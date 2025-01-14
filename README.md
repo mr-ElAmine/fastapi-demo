@@ -1,5 +1,8 @@
 # Pour commencer le projet
 
+```bash
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 --app-dir src
+```
 ## Créer l'environnement virtuel
 
 ```bash
@@ -10,12 +13,16 @@ python -m venv .venv
 
 ```bash
 source .venv/bin/activate
+or 
+.\.venv\Scripts\activate.bat
 ```
 
 ### Pour arrêter (ou désactiver) l'environnement virtuel, il te suffit de taper la commande suivante dans ton terminal
 
 ```bash
 deactivate
+or
+.\.venv\Scripts\deactivate.bat
 ```
 
 ### Puis il faut install les dependans
@@ -33,5 +40,7 @@ pip freeze > requirements.txt
 ### Formatage du code
 
 ```bash
+black src; isort src; pylint src
+or
 black src && isort src && pylint src
 ```
