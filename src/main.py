@@ -4,8 +4,8 @@ from database.main import Base, engine
 from entity.account import Account
 from entity.transaction import Transaction
 from entity.user import User
-from entrypoints import auth
-from entrypoints import user
+from entrypoints import auth, user
+
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
