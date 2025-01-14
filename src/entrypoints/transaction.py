@@ -19,7 +19,7 @@ def make_transaction(
         # Fetch sender and receiver accounts from the database
         sender_account = db.query(Account).filter(Account.id == transaction.id_account_sender).first()
         receiver_account = db.query(Account).filter(Account.id == transaction.id_account_receiver).first()
-
+        
         # Check if both accounts exist
         if not sender_account:
             raise HTTPException(status_code=404, detail="Sender account not found")
@@ -33,6 +33,14 @@ def make_transaction(
         # Check if both accounts are active
         if not sender_account.state or not receiver_account.state:
             raise HTTPException(status_code=400, detail="One or both accounts are inactive")
+        
+        # Check if the both account are not the same
+        if transaction.id_account_sender == transaction.id_account_receiver:
+            raise HTTPException(status_code=400, detail="Both account need to be different")
+        
+        # Check if the transaction amount isn't negative
+        if transaction.amount < 0:
+            raise HTTPException(status_code=400, detail="Amount need to be > 0")
 
         # Perform the transaction
         sender_account.balance -= transaction.amount
