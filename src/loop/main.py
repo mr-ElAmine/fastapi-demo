@@ -8,7 +8,7 @@ from entity.account import Account
 from entity.transaction import Transaction, TransactionPending
 from entity.utile import State
 
-CANCELLATION_TIMEOUT_SECONDS = 60
+CANCELLATION_TIMEOUT_SECONDS = 600
 
 
 def infinite_loop():
@@ -51,7 +51,6 @@ def infinite_loop():
                         continue
 
                     # Mettre à jour les soldes
-                    sender_account.balance -= transaction_pending.amount
                     receiver_account.balance += transaction_pending.amount
 
                     # Ajouter la transaction confirmée

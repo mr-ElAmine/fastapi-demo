@@ -20,14 +20,13 @@ router = APIRouter()
 
 @router.post("/make-transaction")
 def make_transaction(
-    account_id: int,
     transaction: TransactionCreateSchema,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
     try:
         # Fetch sender and receiver accounts
-        sender_account = db.query(Account).filter(Account.id == account_id).first()
+        sender_account = db.query(Account).filter(Account.id == transaction.id_account_sender).first()
         receiver_account = (
             db.query(Account)
             .filter(Account.id == transaction.id_account_receiver)
@@ -69,6 +68,8 @@ def make_transaction(
             raise HTTPException(
                 status_code=400, detail="Transaction amount must be greater than 0"
             )
+        
+        sender_account.balance -= transaction.amount
 
         new_transaction_pending = TransactionPending(
             amount=transaction.amount,
@@ -142,7 +143,6 @@ def cancel_transaction(
             id_account_sender=transaction_pending.id_account_sender,
             id_account_receiver=transaction_pending.id_account_receiver,
             state=State.CANCELLED,
-            date=datetime.now(timezone.utc),
         )
         db.add(cancelled_transaction)
 
