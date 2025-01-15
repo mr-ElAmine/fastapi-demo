@@ -83,4 +83,4 @@ def infinite_loop():
         except KeyError as error:
             print(f"Erreur de clé inattendue : {error}")
 
-        time.sleep(CANCELLATION_TIMEOUT_SECONDS-(CANCELLATION_TIMEOUT_SECONDS/2))
+        time.sleep(CANCELLATION_TIMEOUT_SECONDS - (CANCELLATION_TIMEOUT_SECONDS / 2))
