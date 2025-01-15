@@ -1,15 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy import or_
+from sqlalchemy import or_, desc
 from datetime import datetime
 
 from database.main import get_database
 from entity.account import Account
 from entity.transaction import Transaction
+from entity.deposit import Deposit
 from entity.user import User
 from schema.transaction import TransactionSchema
 from schema.account import AccountSchema
+from schema.deposit import DepositSchema
 from utile import get_current_user
 
 router = APIRouter()
@@ -91,21 +93,59 @@ def make_transaction(
 
 @router.get("/transactions/{account_id}")
 def get_transactions(
-   account_id: int, db: Session = Depends(get_database), current_user: User = Depends(get_current_user)
+    account_id: int,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
-    transaction = db.query(Transaction).filter(
-        or_(
-            Transaction.id_account_receiver == account_id,
-            Transaction.id_account_sender == account_id
+
+    # Verify if the account belongs to the current user
+    user_accounts = db.query(Account).filter(Account.user_id == current_user.id).all()
+    user_accounts_ids = {account.id for account in user_accounts}
+
+    if account_id not in user_accounts_ids:
+        raise HTTPException(
+            status_code=403, detail="Access denied: Account does not belong to the user"
         )
-    ).first()
-    if transaction is None:
-        raise HTTPException(status_code=404, detail="transaction not found")
-    return {
-        "user": current_user.first_name,
-        "amount": transaction.amount,
-        "sender": transaction.id_account_sender,
-        "receiver": transaction.id_account_receiver,
-        "state": transaction.state,
-        "date": transaction.date
-    }
+
+    # Fetch transactions and deposits related to the account
+    transactions = (
+        db.query(Transaction)
+        .filter(
+            or_(
+                Transaction.id_account_sender == account_id,
+                Transaction.id_account_receiver == account_id,
+            )
+        )
+        .all()
+    )
+
+    deposits = (
+        db.query(Deposit)
+        .filter(Deposit.account_id == account_id)
+        .all()
+    )
+
+    # Combine and sort all operations by date
+    combined_operations = [
+        {
+            "type": "transaction",
+            "amount": transaction.amount,
+            "sender": transaction.id_account_sender,
+            "receiver": transaction.id_account_receiver,
+            "state": transaction.state,
+            "date": transaction.date,
+        }
+        for transaction in transactions
+    ] + [
+        {
+            "type": "deposit",
+            "amount": deposit.amount,
+            "state": deposit.state,
+            "date": deposit.date,
+        }
+        for deposit in deposits
+    ]
+
+    combined_operations.sort(key=lambda x: x["date"], reverse=True)
+
+    return combined_operations
