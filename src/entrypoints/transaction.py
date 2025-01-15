@@ -1,17 +1,18 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy import or_, desc
-from datetime import datetime
 
 from database.main import get_database
 from entity.account import Account
-from entity.transaction import Transaction
 from entity.deposit import Deposit
+from entity.transaction import Transaction, TransactionPending
 from entity.user import User
+from entity.utile import State
+from loop.main import CANCELLATION_TIMEOUT_SECONDS
 from schema.transaction import TransactionSchema
-from schema.account import AccountSchema
-from schema.deposit import DepositSchema
 from utile import get_current_user
 
 router = APIRouter()
@@ -19,76 +20,142 @@ router = APIRouter()
 
 @router.post("/make-transaction")
 def make_transaction(
-    transaction: TransactionSchema, db: Session = Depends(get_database)
+    transaction: TransactionSchema,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
 ):
     try:
-        # Fetch sender and receiver accounts from the database
-        sender_account = (
-            db.query(Account)
-            .filter(Account.id == transaction.id_account_sender)
-            .first()
-        )
+        # Fetch sender and receiver accounts
+        sender_account = db.query(Account).filter(Account.id == current_user.id).first()
         receiver_account = (
             db.query(Account)
             .filter(Account.id == transaction.id_account_receiver)
             .first()
         )
 
-        # Check if both accounts exist
+        # Validate accounts
         if not sender_account:
             raise HTTPException(status_code=404, detail="Sender account not found")
         if not receiver_account:
             raise HTTPException(status_code=404, detail="Receiver account not found")
 
-        # Check if sender account has sufficient balance
+        # Ensure sender has sufficient balance
         if sender_account.balance < transaction.amount:
             raise HTTPException(
                 status_code=400, detail="Insufficient balance in sender's account"
             )
 
-        # Check if both accounts are active
+        # Ensure both accounts are active
         if not sender_account.state or not receiver_account.state:
             raise HTTPException(
                 status_code=400, detail="One or both accounts are inactive"
             )
 
-        # Check if the both account are not the same
+        # Ensure sender and receiver are different
         if transaction.id_account_sender == transaction.id_account_receiver:
             raise HTTPException(
-                status_code=400, detail="Both account need to be different"
+                status_code=400, detail="Sender and receiver accounts must be different"
             )
 
-        # Check if the transaction amount isn't negative
-        if transaction.amount < 0:
-            raise HTTPException(status_code=400, detail="Amount need to be > 0")
+        # Ensure the transaction amount is positive
+        if transaction.amount <= 0:
+            raise HTTPException(
+                status_code=400, detail="Transaction amount must be greater than 0"
+            )
 
-        # Perform the transaction
-        sender_account.balance -= transaction.amount
-        receiver_account.balance += transaction.amount
-
-        # Create the transaction record
-        new_transaction = Transaction(
+        new_transaction_pending = TransactionPending(
             amount=transaction.amount,
-            state=True,  # Assuming transaction is successful
             id_account_sender=transaction.id_account_sender,
             id_account_receiver=transaction.id_account_receiver,
-            date=datetime.utcnow(),
+            date=datetime.now(timezone.utc),
         )
-        db.add(new_transaction)
-
-        # Commit changes to the database
+        db.add(new_transaction_pending)
         db.commit()
-        db.refresh(new_transaction)
+        db.refresh(new_transaction_pending)
 
-        return new_transaction
+        return {
+            "status": "success",
+            "message": "Transaction completed successfully.",
+        }
 
-    except SQLAlchemyError as e:
+    except SQLAlchemyError as error:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(error)}"
+        ) from error
 
-    except Exception as e:
+    except Exception as error:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+        raise HTTPException(
+            status_code=500, detail=f"Unexpected error: {str(error)}"
+        ) from error
+
+
+@router.post("/cancel-transaction/{transaction_id}")
+def cancel_transaction(
+    transaction_id: int,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        # Fetch the transaction
+        transaction_pending = (
+            db.query(TransactionSchema)
+            .filter(TransactionSchema.id == transaction_id)
+            .first()
+        )
+
+        if not transaction_pending:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+
+        # Ensure the transaction is in a pending state
+        if transaction_pending.state != State.PENDING:
+            raise HTTPException(
+                status_code=400, detail="Only pending transactions can be cancelled"
+            )
+
+        # Ensure the current user has permission to cancel the transaction
+        if transaction_pending.id_account_sender != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You do not have permission to cancel this transaction",
+            )
+
+        # Check if the cancellation window has passed
+        current_time = datetime.now(timezone.utc)
+        if current_time > transaction_pending.date + timedelta(
+            seconds=CANCELLATION_TIMEOUT_SECONDS
+        ):
+            raise HTTPException(
+                status_code=400, detail="Transaction cancellation window has expired"
+            )
+
+        # Update transaction state
+        cancelled_transaction = Transaction(
+            amount=transaction_pending.amount,
+            id_account_sender=transaction_pending.id_account_sender,
+            id_account_receiver=transaction_pending.id_account_receiver,
+            state=State.CANCELLED,
+            date=datetime.now(timezone.utc),
+        )
+        db.add(cancelled_transaction)
+
+        db.delete(transaction_pending)
+        db.commit()
+
+        return {"status": "success", "message": "Transaction cancelled successfully."}
+
+    except SQLAlchemyError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(error)}"
+        ) from error
+
+    except Exception as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Unexpected error: {str(error)}"
+        ) from error
 
 
 @router.get("/transactions/{account_id}")
@@ -119,11 +186,7 @@ def get_transactions(
         .all()
     )
 
-    deposits = (
-        db.query(Deposit)
-        .filter(Deposit.account_id == account_id)
-        .all()
-    )
+    deposits = db.query(Deposit).filter(Deposit.account_id == account_id).all()
 
     # Combine and sort all operations by date
     combined_operations = [

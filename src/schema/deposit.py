@@ -16,7 +16,7 @@ class DepositSchema(BaseModel):
     date: datetime = Field(..., description="Date and time of the deposit")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # pylint: disable=too-few-public-methods
@@ -25,4 +25,4 @@ class DepositCreateSchema(BaseModel):
     amount: float = Field(..., gt=0, description="Amount to deposit (must be positive)")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
