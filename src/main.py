@@ -14,7 +14,7 @@ app = FastAPI()
 Base.metadata.create_all(bind=engine)
 models = [Account, Transaction, User, Deposit, TransactionPending]
 
-app.include_router(auth.router, prefix="/api", tags=["Auth"])
+app.include_router(auth.router, prefix="/api", tags=["Authentication"])
 app.include_router(account.router, prefix="/api", tags=["Account"])
 app.include_router(deposit.router, prefix="/api", tags=["Deposit"])
 app.include_router(user.router, prefix="/api", tags=["User"])
