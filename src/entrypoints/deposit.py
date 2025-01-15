@@ -7,7 +7,7 @@ from entity.account import Account
 from entity.deposit import Deposit
 from entity.user import User
 from schema.deposit import DepositCreateSchema
-from utile import get_current_user
+from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()
 
@@ -36,10 +36,14 @@ def deposit(
         )
 
     try:
+        current_time = get_current_utc_time()
+
         account.balance += deposit_data.amount
         db.add(account)
 
-        deposit_record = Deposit(account_id=account.id, amount=deposit_data.amount)
+        deposit_record = Deposit(
+            account_id=account.id, amount=deposit_data.amount, date=current_time
+        )
         db.add(deposit_record)
 
         db.commit()

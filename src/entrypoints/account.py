@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
@@ -28,11 +30,13 @@ def create_account(
         )
 
     try:
+        current_time = datetime.now(timezone.utc)
         new_account = Account(
             user_id=current_user.id,
             balance=0,
             state=True,
             is_main=False,
+            date=current_time,
         )
         save(database_session, new_account)
 

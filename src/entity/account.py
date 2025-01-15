@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
@@ -15,7 +13,7 @@ class Account(Base):
     balance = Column(Float, nullable=False, default=0.0)
     state = Column(Boolean, nullable=False, default=True)
     is_main = Column(Boolean, nullable=False, default=False)
-    date = Column(DateTime, default=datetime.now(timezone.utc))
+    date = Column(DateTime, nullable=False)
 
     # Relations avec Transaction
     transactions_sent = relationship(

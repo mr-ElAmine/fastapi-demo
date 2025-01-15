@@ -56,3 +56,7 @@ def get_current_user(
         return user
     except jwt.PyJWTError as error:
         raise HTTPException(status_code=401, detail="Invalid token.") from error
+
+
+def get_current_utc_time():
+    return datetime.now(timezone.utc)

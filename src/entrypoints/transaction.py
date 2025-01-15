@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
@@ -13,7 +13,7 @@ from entity.user import User
 from entity.utile import State
 from loop.main import CANCELLATION_TIMEOUT_SECONDS
 from schema.transaction import TransactionCreateSchema
-from utile import get_current_user
+from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()
 
@@ -74,11 +74,13 @@ def make_transaction(
             )
 
         sender_account.balance -= transaction.amount
+        current_time = get_current_utc_time()
 
         new_transaction_pending = TransactionPending(
             amount=transaction.amount,
             id_account_sender=transaction.id_account_sender,
             id_account_receiver=transaction.id_account_receiver,
+            date=current_time,
         )
         db.add(new_transaction_pending)
         db.commit()
@@ -116,31 +118,26 @@ def cancel_transaction(
             .first()
         )
 
+        if not transaction_pending:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+
         sender_account = (
             db.query(Account)
             .filter(Account.id == transaction_pending.id_account_sender)
             .first()
         )
 
-        if not transaction_pending:
-            raise HTTPException(status_code=404, detail="Transaction not found")
-
-        # Ensure the transaction is in a pending state
-        if transaction_pending.state != State.PENDING:
-            raise HTTPException(
-                status_code=400, detail="Only pending transactions can be cancelled"
-            )
-
         # Ensure the current user has permission to cancel the transaction
-        if sender_account.user_id == current_user.id:
+        if sender_account.user_id != current_user.id:
             raise HTTPException(
                 status_code=403,
                 detail="You do not have permission to cancel this transaction",
             )
 
-        # Check if the cancellation window has passed
-        current_time = datetime.now(timezone.utc)
-        if current_time > transaction_pending.date + timedelta(
+        current_time = get_current_utc_time()
+        transaction_date = transaction_pending.date.replace(tzinfo=timezone.utc)
+
+        if current_time > transaction_date + timedelta(
             seconds=CANCELLATION_TIMEOUT_SECONDS
         ):
             raise HTTPException(
@@ -156,6 +153,7 @@ def cancel_transaction(
             id_account_sender=transaction_pending.id_account_sender,
             id_account_receiver=transaction_pending.id_account_receiver,
             state=State.CANCELLED,
+            date=transaction_date,
         )
         db.add(cancelled_transaction)
 
