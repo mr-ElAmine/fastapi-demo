@@ -27,7 +27,6 @@ class TransactionCreateSchema(BaseModel):
     id_account_receiver: int = Field(
         ..., ge=1, description="ID of the receiver's account"
     )
-    date: datetime = Field(None, description="Date of the transaction")
 
     class Config:
         from_attributes = True

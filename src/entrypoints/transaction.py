@@ -20,13 +20,14 @@ router = APIRouter()
 
 @router.post("/make-transaction")
 def make_transaction(
+    account_id: int,
     transaction: TransactionCreateSchema,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
     try:
         # Fetch sender and receiver accounts
-        sender_account = db.query(Account).filter(Account.id == current_user.id).first()
+        sender_account = db.query(Account).filter(Account.id == account_id).first()
         receiver_account = (
             db.query(Account)
             .filter(Account.id == transaction.id_account_receiver)
@@ -38,6 +39,12 @@ def make_transaction(
             raise HTTPException(status_code=404, detail="Sender account not found")
         if not receiver_account:
             raise HTTPException(status_code=404, detail="Receiver account not found")
+
+        if sender_account.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not authorised.",
+            )
 
         # Ensure sender has sufficient balance
         if sender_account.balance < transaction.amount:
@@ -67,7 +74,6 @@ def make_transaction(
             amount=transaction.amount,
             id_account_sender=transaction.id_account_sender,
             id_account_receiver=transaction.id_account_receiver,
-            date=datetime.now(timezone.utc),
         )
         db.add(new_transaction_pending)
         db.commit()
