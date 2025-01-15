@@ -9,7 +9,7 @@ from entity.transaction import Transaction, TransactionPending
 from entity.utile import State
 from utile import get_current_utc_time
 
-CANCELLATION_TIMEOUT_SECONDS = 60
+CANCELLATION_TIMEOUT_SECONDS = 600
 
 
 def process_pending_transactions():
