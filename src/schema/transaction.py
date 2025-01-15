@@ -17,4 +17,4 @@ class TransactionSchema(BaseModel):
     date: datetime = Field(None, description="Date of the transaction")
 
     class Config:
-        orm_mode = True
+        from_attributes = True
