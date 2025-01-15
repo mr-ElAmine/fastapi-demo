@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from datetime import datetime
 
 from database.main import get_database
@@ -90,12 +91,18 @@ def make_transaction(
 
 @router.get("/transactions/{account_id}")
 def get_transactions(
-   account_id: int, db: Session = Depends(get_database)
+   account_id: int, db: Session = Depends(get_database), current_user: User = Depends(get_current_user)
 ):
-    transaction = db.query(Transaction).filter(Transaction.id_account_receiver == account_id).first()
+    transaction = db.query(Transaction).filter(
+        or_(
+            Transaction.id_account_receiver == account_id,
+            Transaction.id_account_sender == account_id
+        )
+    ).first()
     if transaction is None:
         raise HTTPException(status_code=404, detail="transaction not found")
     return {
+        "user": current_user.first_name,
         "amount": transaction.amount,
         "sender": transaction.id_account_sender,
         "receiver": transaction.id_account_receiver,
