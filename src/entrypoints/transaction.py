@@ -12,7 +12,7 @@ from entity.transaction import Transaction, TransactionPending
 from entity.user import User
 from entity.utile import State
 from loop.main import CANCELLATION_TIMEOUT_SECONDS
-from schema.transaction import TransactionSchema
+from schema.transaction import TransactionCreateSchema, TransactionSchema
 from utile import get_current_user
 
 router = APIRouter()
@@ -20,7 +20,7 @@ router = APIRouter()
 
 @router.post("/make-transaction")
 def make_transaction(
-    transaction: TransactionSchema,
+    transaction: TransactionCreateSchema,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
