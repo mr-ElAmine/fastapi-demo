@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -8,7 +6,7 @@ from entity.account import Account
 from entity.deposit import Deposit
 from entity.user import User
 from schema.user import LoginSchema, UserSchema
-from utile import create_access_token, hash_password, verify_password
+from utile import create_access_token, get_current_utc_time, hash_password, verify_password
 
 router = APIRouter()
 
@@ -53,12 +51,14 @@ def register_user(
     database_session.add(new_user)
     database_session.flush()
 
+    current_time = get_current_utc_time()
+
     new_account = Account(
         user_id=new_user.id,
         balance=0,
         state=True,
         is_main=True,
-        date=datetime.now(timezone.utc),
+        date=current_time,
     )
     database_session.add(new_account)
     database_session.flush()
@@ -66,7 +66,11 @@ def register_user(
     new_account.balance = 100
     database_session.add(new_account)
 
-    deposit_record = Deposit(account_id=new_account.id, amount=100)
+    deposit_record = Deposit(
+        account_id=new_account.id,
+        amount=100,
+        date=current_time,
+    )
     database_session.add(deposit_record)
 
     database_session.commit()

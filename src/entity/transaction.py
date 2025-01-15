@@ -1,5 +1,3 @@
-from datetime import datetime, timezone
-
 from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
@@ -16,7 +14,7 @@ class Transaction(Base):
     state = Column(Enum(State), default=State.PENDING)
     id_account_sender = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     id_account_receiver = Column(Integer, ForeignKey("accounts.id"), nullable=False)
-    date = Column(DateTime, default=datetime.now(timezone.utc))
+    date = Column(DateTime, nullable=False)
 
     # Relations avec Account
     sender_account = relationship("Account", foreign_keys=[id_account_sender])
@@ -29,10 +27,9 @@ class TransactionPending(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     amount = Column(Float, nullable=False)
-    state = Column(Enum(State), default=State.PENDING)
     id_account_sender = Column(Integer, ForeignKey("accounts.id"), nullable=False)
     id_account_receiver = Column(Integer, ForeignKey("accounts.id"), nullable=False)
-    date = Column(DateTime, default=datetime.now(timezone.utc))
+    date = Column(DateTime, nullable=False)
 
     # Relations avec Account
     sender_account = relationship("Account", foreign_keys=[id_account_sender])
