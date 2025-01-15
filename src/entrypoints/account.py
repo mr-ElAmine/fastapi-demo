@@ -74,16 +74,20 @@ def get_account(
         "is_main": account.is_main,
         "created_at": account.date,
     }
-    
-    
-    
+
+
 @router.get("/accounts")
 def get_accounts(
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-    accounts = database_session.query(Account).filter(Account.user_id == current_user.id).order_by(desc(Account.date)).all()
-    
+    accounts = (
+        database_session.query(Account)
+        .filter(Account.user_id == current_user.id)
+        .order_by(desc(Account.date))
+        .all()
+    )
+
     return [
         {
             "id": account.id,
@@ -93,5 +97,3 @@ def get_accounts(
         }
         for account in accounts
     ]
-    
-    

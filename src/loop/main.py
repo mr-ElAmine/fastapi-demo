@@ -42,7 +42,7 @@ def process_pending_transactions():
                     id_account_sender=transaction_pending.id_account_sender,
                     id_account_receiver=transaction_pending.id_account_receiver,
                     state=State.CONFIRMED,
-                    date=transaction_date
+                    date=transaction_date,
                 )
                 db.add(confirmed_transaction)
 
