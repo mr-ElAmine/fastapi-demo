@@ -25,8 +25,3 @@ app.include_router(transaction.router, prefix="/api", tags=["Transaction"])
 async def start_loop():
     thread = threading.Thread(target=infinite_loop, daemon=True)
     thread.start()
-
-
-@app.get("/api")
-def index():
-    return {"status": "success", "message": "Hello Werd"}
