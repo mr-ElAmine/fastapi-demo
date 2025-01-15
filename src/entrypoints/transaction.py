@@ -12,7 +12,7 @@ from entity.transaction import Transaction, TransactionPending
 from entity.user import User
 from entity.utile import State
 from loop.main import CANCELLATION_TIMEOUT_SECONDS
-from schema.transaction import TransactionCreateSchema, TransactionSchema
+from schema.transaction import TransactionCreateSchema
 from utile import get_current_user
 
 router = APIRouter()
@@ -26,7 +26,11 @@ def make_transaction(
 ):
     try:
         # Fetch sender and receiver accounts
-        sender_account = db.query(Account).filter(Account.id == transaction.id_account_sender).first()
+        sender_account = (
+            db.query(Account)
+            .filter(Account.id == transaction.id_account_sender)
+            .first()
+        )
         receiver_account = (
             db.query(Account)
             .filter(Account.id == transaction.id_account_receiver)
@@ -68,7 +72,7 @@ def make_transaction(
             raise HTTPException(
                 status_code=400, detail="Transaction amount must be greater than 0"
             )
-        
+
         sender_account.balance -= transaction.amount
 
         new_transaction_pending = TransactionPending(
@@ -107,8 +111,8 @@ def cancel_transaction(
     try:
         # Fetch the transaction
         transaction_pending = (
-            db.query(TransactionSchema)
-            .filter(TransactionSchema.id == transaction_id)
+            db.query(TransactionPending)
+            .filter(TransactionPending.id == transaction_id)
             .first()
         )
 
@@ -137,7 +141,15 @@ def cancel_transaction(
                 status_code=400, detail="Transaction cancellation window has expired"
             )
 
+        sender_account = (
+            db.query(Account)
+            .filter(Account.id == transaction_pending.id_account_sender)
+            .first()
+        )
         # Update transaction state
+
+        sender_account.balance += transaction_pending.amount
+
         cancelled_transaction = Transaction(
             amount=transaction_pending.amount,
             id_account_sender=transaction_pending.id_account_sender,
