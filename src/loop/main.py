@@ -8,7 +8,7 @@ from entity.account import Account
 from entity.transaction import Transaction, TransactionPending
 from entity.utile import State
 
-CANCELLATION_TIMEOUT_SECONDS = 600
+CANCELLATION_TIMEOUT_SECONDS = 6000
 
 
 def infinite_loop():
