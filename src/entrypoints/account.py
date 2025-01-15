@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
@@ -69,3 +70,24 @@ def get_account(
         "is_main": account.is_main,
         "created_at": account.date,
     }
+    
+    
+    
+@router.get("/accounts")
+def get_accounts(
+    database_session: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    accounts = database_session.query(Account).filter(Account.user_id == current_user.id).order_by(desc(Account.date)).all()
+    
+    return [
+        {
+            "id": account.id,
+            "balance": account.balance,
+            "state": account.state,
+            "created_at": account.date,
+        }
+        for account in accounts
+    ]
+    
+    
