@@ -116,6 +116,12 @@ def cancel_transaction(
             .first()
         )
 
+        sender_account = (
+            db.query(Account)
+            .filter(Account.id == transaction_pending.id_account_sender)
+            .first()
+        )
+
         if not transaction_pending:
             raise HTTPException(status_code=404, detail="Transaction not found")
 
@@ -126,7 +132,7 @@ def cancel_transaction(
             )
 
         # Ensure the current user has permission to cancel the transaction
-        if transaction_pending.id_account_sender != current_user.id:
+        if sender_account.user_id == current_user.id:
             raise HTTPException(
                 status_code=403,
                 detail="You do not have permission to cancel this transaction",
@@ -141,11 +147,6 @@ def cancel_transaction(
                 status_code=400, detail="Transaction cancellation window has expired"
             )
 
-        sender_account = (
-            db.query(Account)
-            .filter(Account.id == transaction_pending.id_account_sender)
-            .first()
-        )
         # Update transaction state
 
         sender_account.balance += transaction_pending.amount
