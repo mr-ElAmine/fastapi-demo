@@ -6,13 +6,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.main import get_database
-from entity.account import Account
-from entity.deposit import Deposit
-from entity.transaction import Transaction, TransactionPending
-from entity.user import User
-from entity.utile import State
+from entity.account_entity import Account
+from entity.deposit_entity import Deposit
+from entity.transaction_entity import Transaction, TransactionPending
+from entity.user_entity import User
+from entity.utile_entity import State
 from loop.main import CANCELLATION_TIMEOUT_SECONDS
-from schema.transaction import TransactionCreateSchema
+from schema.transaction_schema import TransactionCreateSchema
 from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()

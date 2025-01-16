@@ -3,10 +3,10 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.main import get_database
-from entity.account import Account
-from entity.deposit import Deposit
-from entity.user import User
-from schema.deposit import DepositCreateSchema
+from entity.account_entity import Account
+from entity.deposit_entity import Deposit
+from entity.user_entity import User
+from schema.deposit_schema import DepositCreateSchema
 from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()

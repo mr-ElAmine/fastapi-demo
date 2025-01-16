@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from schema.transaction import TransactionSchema
+from schema.transaction_schema import TransactionSchema
 
 
 # pylint: disable=too-few-public-methods

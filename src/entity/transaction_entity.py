@@ -2,7 +2,7 @@ from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
 from database.main import Base
-from entity.utile import State
+from entity.utile_entity import State
 
 
 # pylint: disable=too-few-public-methods
