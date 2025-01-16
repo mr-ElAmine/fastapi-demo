@@ -4,7 +4,6 @@ from sqlalchemy.orm import relationship
 from database.main_database import Base
 
 
-
 # pylint: disable=too-few-public-methods
 class Account(Base):
     __tablename__ = "accounts"
