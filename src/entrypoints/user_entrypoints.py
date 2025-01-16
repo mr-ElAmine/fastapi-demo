@@ -3,7 +3,7 @@ from sqlalchemy import exc
 from sqlalchemy.orm import Session
 
 from database.main import get_database
-from entity.user import User
+from entity.user_entity import User
 from utile import get_current_user
 
 router = APIRouter()

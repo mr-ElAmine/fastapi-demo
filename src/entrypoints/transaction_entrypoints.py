@@ -6,13 +6,13 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
 from database.main import get_database
-from entity.account import Account
-from entity.deposit import Deposit
-from entity.transaction import Transaction, TransactionPending
-from entity.user import User
-from entity.utile import State
+from entity.account_entity import Account
+from entity.deposit_entity import Deposit
+from entity.transaction_entity import Transaction, TransactionPending
+from entity.user_entity import User
+from entity.utile_entity import State
 from loop.main import CANCELLATION_TIMEOUT_SECONDS
-from schema.transaction import TransactionCreateSchema
+from schema.transaction_schema import TransactionCreateSchema
 from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()
@@ -231,24 +231,27 @@ def get_transactions(
     return combined_operations
 
 
-
 @router.get("/transaction/{transaction_id}")
-def get_transaction_by_id (
+def get_transaction_by_id(
     transaction_id: int,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-    
+
     transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
-    
-    #Verify if the transaction exists
+
+    # Verify if the transaction exists
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
     # Verify if the sender or the receiver is the current user
-    if  current_user.id != transaction.id_account_sender and current_user.id != transaction.id_account_receiver:
+    if current_user.id not in [
+        transaction.id_account_sender,
+        transaction.id_account_receiver,
+    ]:
         raise HTTPException(
-            status_code=400, detail="Permission denied: You are not the sender or the receiver of this transaction",
+            status_code=400,
+            detail="Permission denied: You are not the sender or the receiver of this transaction",
         )
 
     return {

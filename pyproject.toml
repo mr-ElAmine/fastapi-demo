@@ -15,6 +15,7 @@ disable = [
     "C0114",
     "C0115",
     "C0116",
+    "C0121",
 ]
 
 [tool.pylint.format]
