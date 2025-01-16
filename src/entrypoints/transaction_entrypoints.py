@@ -229,3 +229,36 @@ def get_transactions(
     combined_operations.sort(key=lambda x: x["date"], reverse=True)
 
     return combined_operations
+
+
+@router.get("/transaction/{transaction_id}")
+def get_transaction_by_id(
+    transaction_id: int,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+
+    # Verify if the transaction exists
+    if not transaction:
+        raise HTTPException(status_code=404, detail="Transaction not found")
+
+    # Verify if the sender or the receiver is the current user
+    if current_user.id not in [
+        transaction.id_account_sender,
+        transaction.id_account_receiver,
+    ]:
+        raise HTTPException(
+            status_code=400,
+            detail="Permission denied: You are not the sender or the receiver of this transaction",
+        )
+
+    return {
+        "id": transaction.id,
+        "amount": transaction.amount,
+        "id_account_sender": transaction.id_account_sender,
+        "id_account_receiver": transaction.id_account_receiver,
+        "state": transaction.state,
+        "date": transaction.date,
+    }
