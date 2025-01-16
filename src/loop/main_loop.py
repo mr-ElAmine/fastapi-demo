@@ -3,7 +3,7 @@ import time
 
 from sqlalchemy.exc import SQLAlchemyError
 
-from database.main import get_database
+from database.main_database import get_database
 from entity.account_entity import Account
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.utile_entity import State

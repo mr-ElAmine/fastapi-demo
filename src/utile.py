@@ -6,7 +6,7 @@ import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-from database.main import get_database
+from database.main_database import get_database
 from entity.user_entity import User
 
 SECRET_KEY = "your_secret_key"

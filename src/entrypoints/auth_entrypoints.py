@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from database.main import get_database
+from database.main_database import get_database
 from entity.account_entity import Account
 from entity.deposit_entity import Deposit
 from entity.user_entity import User

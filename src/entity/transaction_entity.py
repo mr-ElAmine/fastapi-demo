@@ -1,7 +1,7 @@
 from sqlalchemy import Column, DateTime, Enum, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from database.main import Base
+from database.main_database import Base
 from entity.utile_entity import State
 
 

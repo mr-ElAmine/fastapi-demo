@@ -1,7 +1,8 @@
 from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
-from database.main import Base
+from database.main_database import Base
+
 
 
 # pylint: disable=too-few-public-methods

@@ -2,7 +2,7 @@ import threading
 
 from fastapi import FastAPI
 
-from database.main import Base, engine
+from database.main_database import Base, engine
 from entity.account_entity import Account
 from entity.deposit_entity import Deposit
 from entity.transaction_entity import Transaction, TransactionPending
@@ -14,7 +14,7 @@ from entrypoints import (
     transaction_entrypoints,
     user_entrypoints,
 )
-from loop.main import infinite_loop
+from loop.main_loop import infinite_loop
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)

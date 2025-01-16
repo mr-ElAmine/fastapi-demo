@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
-from database.main import Base
+from database.main_database import Base
 
 
 # pylint: disable=too-few-public-methods

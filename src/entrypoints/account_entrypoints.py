@@ -5,7 +5,7 @@ from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
-from database.main import get_database, save
+from database.main_database import get_database, save
 from entity.account_entity import Account
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
