@@ -99,7 +99,6 @@ def get_accounts(
             "state": account.state,
             "is_main": account.is_main,
             "created_at": account.date,
-            
         }
         for account in accounts
     ]
