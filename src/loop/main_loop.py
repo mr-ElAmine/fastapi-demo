@@ -122,4 +122,4 @@ def infinite_loop():
     while True:
         process_pending_transactions()
         redistribute_surplus()
-        time.sleep(CANCELLATION_TIMEOUT_SECONDS // 2)
+        time.sleep(5)

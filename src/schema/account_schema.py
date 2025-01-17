@@ -27,7 +27,3 @@ class AccountSchema(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-class AccountCreateSchema(BaseModel):
-    user_id: int = Field(..., ge=1, description="ID of the user who owns the account")

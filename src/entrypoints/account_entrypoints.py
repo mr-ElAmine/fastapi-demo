@@ -10,7 +10,6 @@ from entity.account_entity import Account
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
 from entity.utile_entity import State
-from schema.account_schema import AccountCreateSchema
 from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()
@@ -18,11 +17,10 @@ router = APIRouter()
 
 @router.post("/create-account")
 def create_account(
-    account_data: AccountCreateSchema,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
-    user = database_session.query(User).filter(User.id == account_data.user_id).first()
+    user = database_session.query(User).filter(User.id == current_user.id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User does not exist.")
 
@@ -99,7 +97,9 @@ def get_accounts(
             "id": account.id,
             "balance": account.balance,
             "state": account.state,
+            "is_main": account.is_main,
             "created_at": account.date,
+            
         }
         for account in accounts
     ]
