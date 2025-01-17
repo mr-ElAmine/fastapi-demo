@@ -244,11 +244,11 @@ def get_transaction_by_id(
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
+    account_sender = db.query(Account).filter(Account.user_id == current_user.id).first()
+    account_receiver = db.query(Account).filter(Account.user_id == current_user.id).first()
+
     # Verify if the sender or the receiver is the current user
-    if current_user.id not in [
-        transaction.id_account_sender,
-        transaction.id_account_receiver,
-    ]:
+    if current_user.id not in [account_sender.id, account_receiver.id]:
         raise HTTPException(
             status_code=400,
             detail="Permission denied: You are not the sender or the receiver of this transaction",
