@@ -1,3 +1,51 @@
+import { Scan } from 'lucide-react';
+import { Link } from 'react-router-dom';
+
 export function Header() {
-  return <div></div>;
+  const navLinks = [
+    { to: '/', label: 'Accueil', icon: <Scan /> },
+    { to: '/about', label: 'À Propos', icon: <Scan /> },
+    { to: '/contact', label: 'Contact', icon: <Scan /> },
+    { to: '/services', label: 'Services', icon: <Scan /> },
+  ];
+
+  return (
+    <aside className="flex h-screen w-64 flex-col bg-gray-800 text-white">
+      {/* Logo / Titre */}
+      <div className="bg-gray-900 p-4 text-2xl font-bold">Banck app</div>
+
+      {/* Liens de navigation générés avec map */}
+      <nav className="flex-1 p-4">
+        <ul className="space-y-4">
+          {navLinks.map((link, index) => (
+            <li key={index}>
+              <Link
+                to={link.to}
+                className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
+              >
+                <div className="flex items-center justify-center gap-4">
+                  <div>{link.icon}</div>
+
+                  {link.label}
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="border-t border-gray-700 p-4">
+        <Link
+          to="/profil"
+          className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
+        >
+          <div className="flex items-center justify-center gap-4">
+            <div>
+              <Scan />
+            </div>
+            Profil
+          </div>
+        </Link>
+      </div>
+    </aside>
+  );
 }
