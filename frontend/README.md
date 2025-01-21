@@ -1,46 +1,50 @@
-# Pour commencer le projet
+# React + TypeScript + Vite
 
-```bash
-python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 --app-dir src
-```
-## Créer l'environnement virtuel
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-```bash
-python -m venv .venv
-```
+Currently, two official plugins are available:
 
-### Puis Activer l'environnement virtuel
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-```bash
-source .venv/bin/activate
-or 
-.\.venv\Scripts\activate
-```
+## Expanding the ESLint configuration
 
-### Pour arrêter (ou désactiver) l'environnement virtuel, il te suffit de taper la commande suivante dans ton terminal
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
 
-```bash
-deactivate
-or
-.\.venv\Scripts\deactivate
-```
+- Configure the top-level `parserOptions` property like this:
 
-### Puis il faut install les dependans
-
-```bash
-pip install -r requirements.txt
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+});
 ```
 
-### Mettre à jour le fichier `requirements.txt`
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
 
-```bash
-pip freeze > requirements.txt
-```
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react';
 
-### Formatage du code
-
-```bash
-black src; isort src; pylint src
-or
-black src && isort src && pylint src
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+});
 ```

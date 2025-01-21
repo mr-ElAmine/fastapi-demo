@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/**/*", "vite.config.ts"],
+  "exclude": ["node_modules", "dist"],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}
