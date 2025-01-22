@@ -3,6 +3,7 @@
 ```bash
 python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000 --app-dir src
 ```
+
 ## Créer l'environnement virtuel
 
 ```bash
@@ -13,7 +14,7 @@ python -m venv .venv
 
 ```bash
 source .venv/bin/activate
-or 
+or
 .\.venv\Scripts\activate
 ```
 

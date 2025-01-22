@@ -10,22 +10,21 @@ export function Header() {
   ];
 
   return (
-    <aside className="flex h-screen w-64 flex-col bg-gray-800 text-white">
-      {/* Logo / Titre */}
-      <div className="bg-gray-900 p-4 text-2xl font-bold">Banck app</div>
+    <aside className="flex h-screen w-80 flex-col border-e-4 bg-white text-gray-800 shadow-lg">
+      {/* Titre / Logo */}
+      <div className="bg-gray-100 p-4 text-2xl font-bold">Banck App</div>
 
-      {/* Liens de navigation générés avec map */}
+      {/* Liens de navigation */}
       <nav className="flex-1 p-4">
         <ul className="space-y-4">
           {navLinks.map((link, index) => (
             <li key={index}>
               <Link
                 to={link.to}
-                className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
+                className="flex items-center gap-2 rounded p-2 hover:bg-gray-200"
               >
                 <div className="flex items-center justify-center gap-4">
-                  <div>{link.icon}</div>
-
+                  <div className="text-gray-600">{link.icon}</div>
                   {link.label}
                 </div>
               </Link>
@@ -33,13 +32,15 @@ export function Header() {
           ))}
         </ul>
       </nav>
-      <div className="border-t border-gray-700 p-4">
+
+      {/* Pied de page */}
+      <div className="border-t-2 border-gray-200 p-4">
         <Link
           to="/profil"
-          className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
+          className="flex items-center gap-2 rounded p-2 hover:bg-gray-200"
         >
           <div className="flex items-center justify-center gap-4">
-            <div>
+            <div className="text-gray-600">
               <Scan />
             </div>
             Profil
