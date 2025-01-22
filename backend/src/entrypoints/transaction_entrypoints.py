@@ -193,7 +193,7 @@ def cancel_transaction(
 
 @router.get("/transactions/{account_id}")
 def get_transactions(
-    account_id: int,
+    account_id: str,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):

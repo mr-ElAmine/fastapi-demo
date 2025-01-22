@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 # pylint: disable=too-few-public-methods
 class BeneficiarySchema(BaseModel):
     id: int = Field(..., description="Unique identifier for the beneficiary")
-    added_by_user_id: int = Field(
+    added_by_user_id: str = Field(
         ..., ge=1, description="ID of the user who added the beneficiary"
     )
     beneficiary_account_id: str = Field(

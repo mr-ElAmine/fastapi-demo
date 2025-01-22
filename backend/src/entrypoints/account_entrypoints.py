@@ -44,7 +44,7 @@ def create_account(
         new_beneficiary = Beneficiary(
             added_by_user_id=current_user.id,
             beneficiary_account_id=new_account.id,
-            name="ton comptes",
+            name="ton compte",
         )
         save(database_session, new_account)
         save(database_session, new_beneficiary)
@@ -61,7 +61,7 @@ def create_account(
 
 @router.get("/account/{account_id}")
 def get_account(
-    account_id: int,
+    account_id: str,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
@@ -114,7 +114,7 @@ def get_accounts(
 
 @router.post("/close-account/{account_id}")
 def close_account(
-    account_id: int,
+    account_id: str,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
