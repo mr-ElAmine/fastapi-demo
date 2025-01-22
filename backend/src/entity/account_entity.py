@@ -26,6 +26,9 @@ class Account(Base):
         foreign_keys="Transaction.id_account_receiver",
         back_populates="receiver_account",
     )
+    beneficiaries = relationship(
+        "Beneficiary", back_populates="beneficiary_account"
+    )
 
     user = relationship("User", back_populates="accounts")
     deposits = relationship("Deposit", back_populates="account")
