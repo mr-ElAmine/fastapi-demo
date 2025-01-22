@@ -56,6 +56,7 @@ def register_user(
     current_time = datetime.now(timezone.utc)
 
     new_account = Account(
+        id=generate_iban(),
         user_id=new_user.id,
         balance=0,
         state=True,

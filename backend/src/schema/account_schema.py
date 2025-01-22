@@ -8,7 +8,7 @@ from schema.transaction_schema import TransactionSchema
 
 # pylint: disable=too-few-public-methods
 class AccountSchema(BaseModel):
-    id: int = Field(..., ge=1, description="Unique identifier for the account")
+    id: str = Field(..., description="Unique identifier for the account")
     user_id: int = Field(..., ge=1, description="ID of the user who owns the account")
     balance: float = Field(..., ge=0.0, description="Current balance of the account")
     state: bool = Field(..., description="State of the account (active or inactive)")
