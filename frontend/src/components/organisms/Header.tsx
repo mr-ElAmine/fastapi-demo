@@ -1,12 +1,18 @@
-import { Scan } from 'lucide-react';
+import {
+  ArrowRightLeft,
+  ChartNoAxesColumn,
+  CircleUserRound,
+  CreditCard,
+  Landmark,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function Header() {
   const navLinks = [
-    { to: '/', label: 'Accueil', icon: <Scan /> },
-    { to: '/about', label: 'À Propos', icon: <Scan /> },
-    { to: '/contact', label: 'Contact', icon: <Scan /> },
-    { to: '/services', label: 'Services', icon: <Scan /> },
+    { to: '/dashboard', label: 'Dashboard', icon: <ChartNoAxesColumn /> },
+    { to: '/transactions', label: 'Transactions', icon: <ArrowRightLeft /> },
+    { to: '/accounts', label: 'My Accounts', icon: <CreditCard /> },
+    { to: '/transfer', label: 'Transfers', icon: <Landmark /> },
   ];
 
   return (
@@ -40,7 +46,7 @@ export function Header() {
         >
           <div className="flex items-center justify-center gap-4">
             <div>
-              <Scan />
+              <CircleUserRound />
             </div>
             Profil
           </div>
