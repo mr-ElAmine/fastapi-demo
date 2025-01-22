@@ -72,7 +72,7 @@ const FormLogin = () => {
             onClick={togglePasswordVisibility}
             className="absolute right-3 top-[33px] text-sm text-gray-600 hover:text-gray-800"
           >
-            {showPassword ? <EyeOff /> : <Eye />}
+            {showPassword ? <Eye /> : <EyeOff />}
           </button>
         </div>
         <button
