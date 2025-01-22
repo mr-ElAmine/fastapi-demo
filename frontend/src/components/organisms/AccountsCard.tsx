@@ -1,5 +1,5 @@
 import { MoreHorizontal } from 'lucide-react';
-import React from 'react';
+import { Link } from 'react-router-dom';
 
 import Card from '../atoms/Card';
 
@@ -53,11 +53,11 @@ const AccountsCard = () => {
   ];
 
   const handleCardClick = () => {
-    alert('Card clicked!');
+    console.log('Card Clicked');
   };
 
   const handleParamClick = (event) => {
-    event.stopPropagation();
+    event.preventDefault();
     alert('Params clicked!');
   };
 
@@ -65,7 +65,7 @@ const AccountsCard = () => {
     <div className="flex flex-wrap gap-4">
       {accounts.map((account, index) => (
         <div className="w-1/3" key={index}>
-          <button onClick={handleCardClick} className="w-full p-4">
+          <Link to="/transactions" onClick={handleCardClick} className="w-full">
             <Card>
               <div className="relative mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold">{account.title}</h3>
@@ -81,7 +81,7 @@ const AccountsCard = () => {
                 <span className="text-sm text-gray-500">{account.iban}</span>
               </div>
             </Card>
-          </button>
+          </Link>
         </div>
       ))}
     </div>

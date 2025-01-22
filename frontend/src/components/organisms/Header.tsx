@@ -12,7 +12,7 @@ export function Header() {
     { to: '/dashboard', label: 'Dashboard', icon: <ChartNoAxesColumn /> },
     { to: '/transactions', label: 'Transactions', icon: <ArrowRightLeft /> },
     { to: '/accounts', label: 'My Accounts', icon: <CreditCard /> },
-    { to: '/transfer', label: 'Transfers', icon: <Landmark /> },
+    { to: '/transfers', label: 'Transfers', icon: <Landmark /> },
   ];
 
   return (
