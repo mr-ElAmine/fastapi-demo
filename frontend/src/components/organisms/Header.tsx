@@ -41,7 +41,7 @@ export function Header() {
       </nav>
       <div className="border-t border-gray-700 p-4">
         <Link
-          to="/profil"
+          to="/profile"
           className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
         >
           <div className="flex items-center justify-center gap-4">

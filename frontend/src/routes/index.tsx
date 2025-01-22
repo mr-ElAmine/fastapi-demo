@@ -4,6 +4,7 @@ import Accounts from '@/components/pages/Accounts';
 import Home from '@/components/pages/Home.tsx';
 import Login from '@/components/pages/Login';
 import NotFound from '@/components/pages/NotFound.tsx';
+import Profile from '@/components/pages/Profile';
 import Register from '@/components/pages/Register';
 import Transfers from '@/components/pages/Virements';
 
@@ -16,6 +17,7 @@ const RouterApp = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/accounts" element={<Accounts />} />
         <Route path="/transfers" element={<Transfers />} />
+        <Route path="/profile" element={<Profile />} />
 
         <Route path="*" element={<NotFound />} />
       </Routes>
