@@ -17,8 +17,8 @@ class Beneficiary(Base):
 
     # Relationships
     added_by_user = relationship(
-        "User", foreign_keys=[added_by_user_id], back_populates="added_beneficiaries"
-    )
+            "User", back_populates="added_beneficiaries"
+        )
     beneficiary_account = relationship(
-        "Account", foreign_keys=[beneficiary_account_id], back_populates="beneficiaries"
-    )
+            "Account", back_populates="beneficiaries"
+        )
