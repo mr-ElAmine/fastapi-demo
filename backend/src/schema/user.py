@@ -30,3 +30,29 @@ class UserSchema(BaseModel):
 class LoginSchema(BaseModel):
     email: EmailStr = Field(..., description="Email de l'utilisateur")
     password: str = Field(..., description="Mot de passe de l'utilisateur")
+
+
+class ResetPasswordSchema(BaseModel):
+    old_password: str = Field(
+        ..., min_length=8, description="Password with at least 8 characters"
+    )
+    new_password: str = Field(
+        ..., min_length=8, description="Password with at least 8 characters"
+    )
+
+    @field_validator("new_password")
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+        if (
+            not any(c.isupper() for c in value)
+            or not any(c.islower() for c in value)
+            or not any(c.isdigit() for c in value)
+            or all(c not in "@$!%*?&" for c in value)
+        ):
+            raise ValueError(
+                """
+                Password must contain at least one uppercase letter, 
+                one lowercase letter, one digit, and one special character (@$!%*?&).
+                """
+            )
+        return value
