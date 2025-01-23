@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from database.main_database import get_database
 from entity.account_entity import Account
+from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
@@ -71,6 +72,21 @@ def make_transaction(
         if transaction.amount <= 0:
             raise HTTPException(
                 status_code=400, detail="Transaction amount must be greater than 0"
+            )
+
+        beneficiary = (
+            db.query(Beneficiary)
+            .filter(
+                Beneficiary.added_by_user_id == current_user.id,
+                Beneficiary.beneficiary_account_id == transaction.id_account_receiver,
+            )
+            .first()
+        )
+
+        if not beneficiary:
+            raise HTTPException(
+                status_code=403,
+                detail="The receiver account must be added as a beneficiary before making a transaction.",
             )
 
         sender_account.balance -= transaction.amount
@@ -177,7 +193,7 @@ def cancel_transaction(
 
 @router.get("/transactions/{account_id}")
 def get_transactions(
-    account_id: int,
+    account_id: str,
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):

@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta, timezone
+import random
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 import jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+from stdnum import iban
 
 from database.main_database import get_database
 from entity.user_entity import User
@@ -60,3 +62,36 @@ def get_current_user(
 
 def get_current_utc_time():
     return datetime.now(timezone.utc)
+
+
+def generate_iban(country_code: str = "FR") -> str:
+
+    # Longueurs des IBAN pour différents pays
+    iban_lengths = {
+        "FR": 27,  # France
+        "DE": 22,  # Allemagne
+        "ES": 24,  # Espagne
+        "IT": 27,  # Italie
+    }
+
+    if country_code not in iban_lengths:
+        raise ValueError(f"Le pays {country_code} n'est pas supporté.")
+
+    # Génération aléatoire des parties de l'IBAN
+    bank_code = "".join(random.choices("0123456789", k=5))  # Code banque (5 chiffres)
+    account_number = "".join(
+        random.choices("0123456789", k=11)
+    )  # Numéro de compte (11 chiffres)
+
+    # Créer la base sans les chiffres de contrôle
+    basic_account_number = f"{bank_code}{account_number}".ljust(
+        iban_lengths[country_code] - 4, "0"
+    )
+
+    # Ajouter le code pays et les chiffres de contrôle temporaires (00)
+    temporary_iban = f"{country_code}00{basic_account_number}"
+
+    # Calcul des chiffres de contrôle
+    valid_check_digits = iban.calc_check_digits(temporary_iban)
+
+    return f"{country_code}{valid_check_digits}{basic_account_number}"

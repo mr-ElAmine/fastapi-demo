@@ -7,10 +7,11 @@ from sqlalchemy.orm import Session
 
 from database.main_database import get_database, save
 from entity.account_entity import Account
+from entity.beneficiary_entity import Beneficiary
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
 from entity.utile_entity import State
-from utile import get_current_user, get_current_utc_time
+from utile import generate_iban, get_current_user, get_current_utc_time
 
 router = APIRouter()
 
@@ -33,13 +34,20 @@ def create_account(
     try:
         current_time = datetime.now(timezone.utc)
         new_account = Account(
+            id=generate_iban(),
             user_id=current_user.id,
             balance=0,
             state=True,
             is_main=False,
             date=current_time,
         )
+        new_beneficiary = Beneficiary(
+            added_by_user_id=current_user.id,
+            beneficiary_account_id=new_account.id,
+            name="ton compte",
+        )
         save(database_session, new_account)
+        save(database_session, new_beneficiary)
 
         return {
             "status": "success",
@@ -53,7 +61,7 @@ def create_account(
 
 @router.get("/account/{account_id}")
 def get_account(
-    account_id: int,
+    account_id: str,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
@@ -106,7 +114,7 @@ def get_accounts(
 
 @router.post("/close-account/{account_id}")
 def close_account(
-    account_id: int,
+    account_id: str,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):

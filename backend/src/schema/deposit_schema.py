@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 # pylint: disable=too-few-public-methods
 class DepositSchema(BaseModel):
     id: int = Field(..., description="Unique ID of the deposit")
-    account_id: int = Field(
+    account_id: str = Field(
         ..., description="ID of the account associated with the deposit"
     )
     amount: float = Field(..., gt=0, description="Deposited amount, must be positive")
@@ -21,7 +21,7 @@ class DepositSchema(BaseModel):
 
 # pylint: disable=too-few-public-methods
 class DepositCreateSchema(BaseModel):
-    account_id: int = Field(..., description="ID of the account to deposit into")
+    account_id: str = Field(..., description="ID of the account to deposit into")
     amount: float = Field(..., gt=0, description="Amount to deposit (must be positive)")
 
     class Config:

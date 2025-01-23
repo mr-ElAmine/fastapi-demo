@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer
+from sqlalchemy import Boolean, Column, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from database.main_database import Base
@@ -8,7 +8,7 @@ from database.main_database import Base
 class Account(Base):
     __tablename__ = "accounts"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String(34), primary_key=True, index=True, unique=True, nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     balance = Column(Float, nullable=False, default=0.0)
     state = Column(Boolean, nullable=False, default=True)
@@ -25,6 +25,9 @@ class Account(Base):
         "Transaction",
         foreign_keys="Transaction.id_account_receiver",
         back_populates="receiver_account",
+    )
+    beneficiaries = relationship(
+        "Beneficiary", back_populates="beneficiary_account"
     )
 
     user = relationship("User", back_populates="accounts")

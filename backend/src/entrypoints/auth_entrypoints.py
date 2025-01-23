@@ -8,7 +8,7 @@ from entity.account_entity import Account
 from entity.deposit_entity import Deposit
 from entity.user_entity import User
 from schema.user import LoginSchema, ResetPasswordSchema, UserSchema
-from utile import create_access_token, hash_password, verify_password, get_current_user
+from utile import create_access_token, generate_iban, hash_password, verify_password, get_current_user
 
 router = APIRouter()
 
@@ -56,6 +56,7 @@ def register_user(
     current_time = datetime.now(timezone.utc)
 
     new_account = Account(
+        id=generate_iban(),
         user_id=new_user.id,
         balance=0,
         state=True,
