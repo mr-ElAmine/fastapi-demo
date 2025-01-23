@@ -42,13 +42,8 @@ export function Header() {
       {/* Pied de page */}
       <div className="border-t-2 border-gray-200 p-4">
         <Link
-<<<<<<< HEAD
           to="/profile"
           className="flex items-center gap-2 rounded p-2 hover:bg-gray-700"
-=======
-          to="/profil"
-          className="flex items-center gap-2 rounded p-2 hover:bg-gray-200"
->>>>>>> 91beef0d4d3953d602c129d65a78869de23d7723
         >
           <div className="flex items-center justify-center gap-4">
             <div>

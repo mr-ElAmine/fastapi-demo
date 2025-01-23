@@ -1,8 +1,7 @@
 import MainLayout from '@/components/templates/MainLayout.tsx';
 
 import { Button } from '../atoms/Button';
-import MyTransfersCard from '../organisms/MyTransfersCard';
-import { default as TransfersAdded } from '../organisms/TransfersCard';
+import TransfersFrom from '../organisms/TransfersForm';
 
 const Transfers = () => {
   return (
@@ -16,10 +15,8 @@ const Transfers = () => {
         >
           Add a recipient
         </Button>
-        <p>My Account</p>
-        <MyTransfersCard />
-        <p>Added</p>
-        <TransfersAdded />
+
+        <TransfersFrom />
       </div>
     </MainLayout>
   );
