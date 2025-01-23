@@ -88,7 +88,9 @@ const FormLogin = () => {
             value={formData.password}
             onChange={handleChange}
             message={
-              formData.password.length < 6 && formMessage
+              formData.password.length >= 1 &&
+              formData.password.length < 6 &&
+              formMessage
                 ? 'Le mot de passe est trop court.'
                 : ''
             }
