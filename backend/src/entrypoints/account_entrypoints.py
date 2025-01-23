@@ -46,7 +46,6 @@ def create_account(
             user_id=current_user.id,
             name=new_account_data.name,
             balance=0,
-            state=True,
             is_main=False,
             type=new_account_data.type,
             date=current_time,

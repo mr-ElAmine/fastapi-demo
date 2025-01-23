@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -82,7 +83,7 @@ def get_beneficiaries(
 ):
     beneficiaries = (
         db.query(Beneficiary)
-        .join(Account, Account.id == Beneficiary.beneficiary_account_id)
+        .join(Account, and_(Account.id == Beneficiary.beneficiary_account_id, Account.state == True))
         .filter(
             Beneficiary.added_by_user_id == current_user.id,
             Account.user_id == current_user.id, 
@@ -99,10 +100,10 @@ def get_beneficiaries(
 ):
     beneficiaries = (
         db.query(Beneficiary)
-        .join(Account, Account.id == Beneficiary.beneficiary_account_id)
+        .join(Account, and_(Account.id == Beneficiary.beneficiary_account_id, Account.state == True))
         .filter(
             Beneficiary.added_by_user_id == current_user.id,
-            Account.user_id != current_user.id, 
+            Account.user_id != current_user.id,  # Ensures `user_id` is not equal to `current_user.id`
         )
         .all()
     )

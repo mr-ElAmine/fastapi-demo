@@ -63,7 +63,6 @@ def register_user(
         user_id=new_user.id,
         name="Checking account",
         balance=0,
-        state=True,
         is_main=True,
         type=AccountType.CHECKING,
         date=current_time,

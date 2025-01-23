@@ -7,7 +7,7 @@ import Card from '../atoms/Card';
 
 const TransfersCard = ({ data }: { data: BeneficiaryType[] }) => {
   return (
-    <div className="flex flex-wrap py-5">
+    <div className="flex flex-col gap-5 py-5">
       {data.length > 0 ? (
         data.map((beneficiary, index) => (
           <div className="w-1/3" key={index}>
