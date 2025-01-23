@@ -31,8 +31,7 @@ app.include_router(transaction_entrypoints.router, prefix="/api", tags=["Transac
 app.include_router(beneficiary_entrypoints.router, prefix="/api", tags=["Beneficiary"])
 
 origins = [
-    "http://localhost:5173",  # Origine autorisée pour votre frontend
-    "http://127.0.0.1:5173",  # Ajoutez d'autres origines si nécessaire
+    "http://localhost:5173",
 ]
 
 # Ajoutez le middleware CORS

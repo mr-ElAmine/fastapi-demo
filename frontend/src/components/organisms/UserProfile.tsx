@@ -1,10 +1,13 @@
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { Eye, EyeOff } from 'lucide-react';
-import React, { useState } from 'react';
+import { useState } from 'react';
+
+import useAuth from '@/hooks/use-auth';
 
 import Input from '../atoms/Input';
 
 function UserProfile() {
+  const { token } = useAuth();
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmPassword] = useState(false);
@@ -21,6 +24,48 @@ function UserProfile() {
     setShowConfirmPassword((prev) => !prev);
   };
 
+  const changePassword = async (
+    values: {
+      oldPassword: string;
+      newPassword: string;
+    },
+    setStatus: { (status?: any): void; (arg0: string): void },
+    setSubmitting: { (isSubmitting: boolean): void; (arg0: boolean): void }
+  ) => {
+    try {
+      const response = await fetch(
+        'http://127.0.0.1:8000/api/change-password',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            old_password: values.oldPassword,
+            new_password: values.newPassword,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        console.log(response);
+        throw new Error('Erreur lors du changement de mot de passe');
+      }
+
+      const data = await response.json();
+      setStatus(`Mot de passe changé avec succès ! ${data.message}`);
+    } catch (error) {
+      if (error instanceof Error) {
+        setStatus(error.message);
+      } else {
+        setStatus('Une erreur inconnue est survenue');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex w-full max-w-md flex-col rounded-md bg-white">
       <div className="flex flex-col bg-gray-50 p-8 pt-6">
@@ -33,6 +78,7 @@ function UserProfile() {
           }}
           validate={(values) => {
             const errors: { [key: string]: string } = {};
+
             if (!values.oldPassword) {
               errors.oldPassword = 'Ancien mot de passe requis';
             }
@@ -49,6 +95,7 @@ function UserProfile() {
               errors.newPassword =
                 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial';
             }
+
             if (!values.confirmNewPassword) {
               errors.confirmNewPassword =
                 'Confirmation du mot de passe requise';
@@ -56,31 +103,11 @@ function UserProfile() {
               errors.confirmNewPassword =
                 'Les mots de passe ne correspondent pas';
             }
+
             return errors;
           }}
           onSubmit={(values, { setSubmitting, setStatus }) => {
-            setStatus('');
-            fetch('/api/change-password', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(values),
-            })
-              .then((response) => {
-                if (!response.ok) {
-                  throw new Error('Erreur lors du changement de mot de passe');
-                }
-                return response.json();
-              })
-              .then((data) => {
-                setStatus(`Mot de passe changé avec succès ! ${data.message} `);
-                setSubmitting(false);
-              })
-              .catch((error) => {
-                setStatus(error.message);
-                setSubmitting(false);
-              });
+            changePassword(values, setStatus, setSubmitting);
           }}
         >
           {({ isSubmitting, status }) => (

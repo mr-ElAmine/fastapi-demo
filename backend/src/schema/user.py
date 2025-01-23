@@ -34,11 +34,12 @@ class LoginSchema(BaseModel):
 
 class ResetPasswordSchema(BaseModel):
     old_password: str = Field(
-        ..., min_length=8, description="Password with at least 8 characters"
+        ..., min_length=8, description="Old password"
     )
     new_password: str = Field(
-        ..., min_length=8, description="Password with at least 8 characters"
+        ..., min_length=8, description="New password with at least 8 characters"
     )
+    
 
     @field_validator("new_password")
     @classmethod
@@ -56,3 +57,4 @@ class ResetPasswordSchema(BaseModel):
                 """
             )
         return value
+
