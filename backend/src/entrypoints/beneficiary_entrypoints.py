@@ -42,6 +42,21 @@ def create_beneficiary(
             detail="You cannot add your own account as a beneficiary.",
         )
 
+    existing_beneficiary = (
+        db.query(Beneficiary)
+        .filter(
+            Beneficiary.added_by_user_id == current_user.id,
+            Beneficiary.beneficiary_account_id == beneficiary.beneficiary_account_id,
+        )
+        .first()
+    )
+
+    if existing_beneficiary:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This beneficiary already exists.",
+        )
+
     new_beneficiary = Beneficiary(
         added_by_user_id=current_user.id,
         beneficiary_account_id=beneficiary.beneficiary_account_id,
@@ -60,7 +75,7 @@ def create_beneficiary(
     return new_beneficiary
 
 
-@router.get("/beneficiaries")
+@router.get("/my-beneficiaries")
 def get_beneficiaries(
     db: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
@@ -70,8 +85,27 @@ def get_beneficiaries(
         .join(Account, Account.id == Beneficiary.beneficiary_account_id)
         .filter(
             Beneficiary.added_by_user_id == current_user.id,
+            Account.user_id == current_user.id, 
         )
         .all()
     )
 
     return beneficiaries or []
+
+@router.get("/other-beneficiaries")
+def get_beneficiaries(
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    beneficiaries = (
+        db.query(Beneficiary)
+        .join(Account, Account.id == Beneficiary.beneficiary_account_id)
+        .filter(
+            Beneficiary.added_by_user_id == current_user.id,
+            Account.user_id != current_user.id, 
+        )
+        .all()
+    )
+
+    return beneficiaries or []
+

@@ -17,7 +17,5 @@ class User(Base):
     # Relation avec la table Account
     accounts = relationship("Account", back_populates="user")
     added_beneficiaries = relationship(
-        "Beneficiary",
-        back_populates="added_by_user",
-        cascade="all, delete-orphan"
+        "Beneficiary", back_populates="added_by_user", cascade="all, delete-orphan"
     )

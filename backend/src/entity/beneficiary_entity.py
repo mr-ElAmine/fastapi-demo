@@ -16,9 +16,5 @@ class Beneficiary(Base):
     name = Column(String(255), nullable=False)
 
     # Relationships
-    added_by_user = relationship(
-            "User", back_populates="added_beneficiaries"
-        )
-    beneficiary_account = relationship(
-            "Account", back_populates="beneficiaries"
-        )
+    added_by_user = relationship("User", back_populates="added_beneficiaries")
+    beneficiary_account = relationship("Account", back_populates="beneficiaries")
