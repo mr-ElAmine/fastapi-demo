@@ -10,8 +10,8 @@ const TransfersCard = ({ data }: { data: BeneficiaryType[] }) => {
     <div className="flex flex-col gap-5 py-5">
       {data.length > 0 ? (
         data.map((beneficiary, index) => (
-          <div className="w-1/3" key={index}>
-            <Link to="/transactions">
+          <div className="w-full" key={index}>
+            <Link to="/transfers-money">
               <Card>
                 <div className="relative mb-4 flex items-center justify-between">
                   <h3 className="text-lg font-semibold">{beneficiary.name}</h3>

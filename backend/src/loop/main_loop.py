@@ -9,7 +9,7 @@ from entity.transaction_entity import Transaction, TransactionPending
 from entity.utile_entity import State
 from utile import get_current_utc_time
 
-CANCELLATION_TIMEOUT_SECONDS = 30
+CANCELLATION_TIMEOUT_SECONDS = 50_000
 BALANCE_THRESHOLD = 50_000
 
 
@@ -44,6 +44,7 @@ def process_pending_transactions():
                     id_account_receiver=transaction_pending.id_account_receiver,
                     state=State.CONFIRMED,
                     date=transaction_date,
+                    label=transaction_pending.label,
                 )
                 db.add(confirmed_transaction)
 

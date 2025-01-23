@@ -9,6 +9,7 @@ from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
+from loop.main_loop import infinite_loop
 from src.entrypoints import (
     account_entrypoints,
     auth_entrypoints,
@@ -17,7 +18,6 @@ from src.entrypoints import (
     transaction_entrypoints,
     user_entrypoints,
 )
-from loop.main_loop import infinite_loop
 
 app = FastAPI()
 Base.metadata.create_all(bind=engine)

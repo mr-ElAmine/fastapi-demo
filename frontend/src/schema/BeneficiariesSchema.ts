@@ -10,3 +10,12 @@ export const BeneficiarySchema = z.object({
 export const BeneficiariesTableSchema = z.array(BeneficiarySchema);
 
 export type BeneficiaryType = z.infer<typeof BeneficiarySchema>;
+
+export const CreateBeneficiarySchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  beneficiary_account_id: z
+    .string()
+    .min(1, 'Beneficiary Account ID is required'),
+});
+
+export type CreateBeneficiaryType = z.infer<typeof CreateBeneficiarySchema>;

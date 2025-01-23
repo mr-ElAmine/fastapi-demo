@@ -6,6 +6,7 @@ import Login from '@/components/pages/Login';
 import NotFound from '@/components/pages/NotFound';
 import Profile from '@/components/pages/Profile';
 import Register from '@/components/pages/Register';
+import TransfersMoney from '@/components/pages/TransfersMoney';
 import Transfers from '@/components/pages/Virements';
 
 import { ProtectedRoute } from './protected-route';
@@ -36,6 +37,10 @@ const RoutesApp = () => {
         {
           path: '/transfers',
           element: <Transfers />, // Virements
+        },
+        {
+          path: '/transfers-money',
+          element: <TransfersMoney />,
         },
         {
           path: '/profile',

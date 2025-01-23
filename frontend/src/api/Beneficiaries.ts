@@ -33,3 +33,16 @@ export async function OtherBeneficiaries(): Promise<BeneficiaryType[]> {
     return [];
   }
 }
+
+export async function AddBeneficiaries({
+  data,
+}: {
+  data: { name: string; beneficiary_account_id: string };
+}) {
+  return axios.post(
+    `${config.api.baseUrl}${config.api.addBeneficiariesEndpoint}`,
+    {
+      ...data,
+    }
+  );
+}

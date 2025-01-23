@@ -118,7 +118,7 @@ def get_accounts(
             "is_main": account.is_main,
             "created_at": account.date,
             "type": account.type,
-            "name": account.name
+            "name": account.name,
         }
         for account in accounts
     ]

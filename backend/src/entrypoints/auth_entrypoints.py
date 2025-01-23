@@ -10,7 +10,7 @@ from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
 from entity.user_entity import User
 from entity.utile_entity import AccountType
-from schema.user import LoginSchema, ResetPasswordSchema, UserSchema
+from schema.user_schema import LoginSchema, ResetPasswordSchema, UserSchema
 from utile import create_access_token, generate_iban, get_current_user, hash_password, verify_password
 
 router = APIRouter()
@@ -28,7 +28,9 @@ def login_user(
     if not verify_password(user_data.password, user.password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    access_token = create_access_token(data={"sub": user.email, "email": user.email, "id": user.id})
+    access_token = create_access_token(
+        data={"sub": user.email, "email": user.email, "id": user.id}
+    )
 
     return {
         "status": "success",
