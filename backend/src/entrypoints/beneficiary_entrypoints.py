@@ -83,15 +83,21 @@ def get_beneficiaries(
 ):
     beneficiaries = (
         db.query(Beneficiary)
-        .join(Account, and_(Account.id == Beneficiary.beneficiary_account_id, Account.state == True))
+        .join(
+            Account,
+            and_(
+                Account.id == Beneficiary.beneficiary_account_id, Account.state == True
+            ),
+        )
         .filter(
             Beneficiary.added_by_user_id == current_user.id,
-            Account.user_id == current_user.id, 
+            Account.user_id == current_user.id,
         )
         .all()
     )
 
     return beneficiaries or []
+
 
 @router.get("/other-beneficiaries")
 def get_beneficiaries(
@@ -100,13 +106,17 @@ def get_beneficiaries(
 ):
     beneficiaries = (
         db.query(Beneficiary)
-        .join(Account, and_(Account.id == Beneficiary.beneficiary_account_id, Account.state == True))
+        .join(
+            Account,
+            and_(
+                Account.id == Beneficiary.beneficiary_account_id, Account.state == True
+            ),
+        )
         .filter(
             Beneficiary.added_by_user_id == current_user.id,
-            Account.user_id != current_user.id,  # Ensures `user_id` is not equal to `current_user.id`
+            Account.user_id != current_user.id,
         )
         .all()
     )
 
     return beneficiaries or []
-

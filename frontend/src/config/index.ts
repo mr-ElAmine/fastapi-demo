@@ -5,9 +5,14 @@ const config = {
     registerEndpoint: '/register',
     myBeneficiariesEndpoint: '/my-beneficiaries',
     otherBeneficiariesEndpoint: '/other-beneficiaries',
+    addBeneficiariesEndpoint: '/add-beneficiaries',
     getAccountsEndpoint: '/accounts',
     createAccountsEndpoint: '/create-account',
     closeAccountsEndpoint: '/close-account/',
+    makeTransactionEndpoint: '/make-transaction',
+    pendingTransactionsEndpoint: '/pending-transactions',
+    cancelTransactionEndpoint: '/cancel-transaction/',
+    makeTransactionAutoEndpoint: '/make-transaction-auto',
   },
 };
 

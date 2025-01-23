@@ -29,6 +29,16 @@ class Account(Base):
         foreign_keys="Transaction.id_account_receiver",
         back_populates="receiver_account",
     )
+    sent_transactions_auto = relationship(
+        "TransactionAuto",
+        foreign_keys="TransactionAuto.sender_account_id",
+        back_populates="sender_account",
+    )
+    received_transactions_auto = relationship(
+        "TransactionAuto",
+        foreign_keys="TransactionAuto.receiver_account_id",
+        back_populates="receiver_account",
+    )
     beneficiaries = relationship("Beneficiary", back_populates="beneficiary_account")
 
     user = relationship("User", back_populates="accounts")

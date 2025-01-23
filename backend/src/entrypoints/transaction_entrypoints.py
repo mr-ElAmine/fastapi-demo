@@ -9,11 +9,11 @@ from database.main_database import get_database
 from entity.account_entity import Account
 from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
-from entity.transaction_entity import Transaction, TransactionPending
+from entity.transaction_entity import Transaction, TransactionAuto, TransactionPending
 from entity.user_entity import User
-from entity.utile_entity import State
+from entity.utile_entity import FrequencyEnum, State
 from loop.main_loop import CANCELLATION_TIMEOUT_SECONDS
-from schema.transaction_schema import TransactionCreateSchema
+from schema.transaction_schema import TransactionAutoCreateSchema, TransactionCreateSchema
 from utile import get_current_user, get_current_utc_time
 
 router = APIRouter()
@@ -97,6 +97,7 @@ def make_transaction(
             id_account_sender=transaction.id_account_sender,
             id_account_receiver=transaction.id_account_receiver,
             date=current_time,
+            label=transaction.label,
         )
         db.add(new_transaction_pending)
         db.commit()
@@ -170,6 +171,7 @@ def cancel_transaction(
             id_account_receiver=transaction_pending.id_account_receiver,
             state=State.CANCELLED,
             date=transaction_date,
+            label=transaction_pending.label,
         )
         db.add(cancelled_transaction)
 
@@ -230,6 +232,7 @@ def get_transactions(
             "receiver": transaction.id_account_receiver,
             "state": transaction.state,
             "date": transaction.date,
+            "label": transaction.label,
         }
         for transaction in transactions
     ] + [
@@ -277,4 +280,135 @@ def get_transaction_by_id(
         "id_account_receiver": transaction.id_account_receiver,
         "state": transaction.state,
         "date": transaction.date,
+        "label": transaction.label,
     }
+
+
+@router.get("/pending-transactions")
+def get_pending_transactions(
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        pending_transactions = (
+            db.query(TransactionPending)
+            .join(Account, TransactionPending.id_account_sender == Account.id)
+            .filter(Account.user_id == current_user.id)
+            .all()
+        )
+
+        return [
+            {
+                "id": transaction.id,
+                "amount": transaction.amount,
+                "id_account_sender": transaction.id_account_sender,
+                "id_account_receiver": transaction.id_account_receiver,
+                "date": transaction.date,
+                "label": transaction.label,
+            }
+            for transaction in pending_transactions
+        ]
+    except SQLAlchemyError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(error)}"
+        ) from error
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500, detail=f"Unexpected error: {str(error)}"
+        ) from error
+
+
+@router.post("/make-transaction-auto")
+def make_transaction_auto(
+    transaction: TransactionAutoCreateSchema,
+    db: Session = Depends(get_database),
+    current_user: User = Depends(get_current_user),
+):
+    try:
+        # Fetch sender and receiver accounts
+        sender_account = (
+            db.query(Account)
+            .filter(Account.id == transaction.sender_account_id)
+            .first()
+        )
+        receiver_account = (
+            db.query(Account)
+            .filter(Account.id == transaction.receiver_account_id)
+            .first()
+        )
+
+        # Validate accounts
+        if not sender_account:
+            raise HTTPException(status_code=404, detail="Sender account not found")
+        if not receiver_account:
+            raise HTTPException(status_code=404, detail="Receiver account not found")
+
+        if sender_account.user_id != current_user.id:
+            raise HTTPException(
+                status_code=403,
+                detail="You are not authorised to perform this action.",
+            )
+
+        # Ensure both accounts are active
+        if not sender_account.state or not receiver_account.state:
+            raise HTTPException(
+                status_code=400, detail="One or both accounts are inactive"
+            )
+
+        # Ensure sender and receiver are different
+        if transaction.sender_account_id == transaction.receiver_account_id:
+            raise HTTPException(
+                status_code=400, detail="Sender and receiver accounts must be different"
+            )
+
+        # Ensure the transaction amount is positive
+        if transaction.amount <= 0:
+            raise HTTPException(
+                status_code=400, detail="Transaction amount must be greater than 0"
+            )
+
+        # Validate frequency (e.g., daily, weekly, monthly)
+        if transaction.frequency.value not in [e.value for e in FrequencyEnum]:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid frequency. Allowed values are: {', '.join([e.value for e in FrequencyEnum])}.",
+            )
+
+        # Ensure the start day is in the future
+        if transaction.start_day <= get_current_utc_time().date():
+            raise HTTPException(
+                status_code=400, detail="Start day must be a future date."
+            )
+
+        # Create the automatic transaction
+        new_transaction_auto = TransactionAuto(
+            sender_account_id=transaction.sender_account_id,
+            receiver_account_id=transaction.receiver_account_id,
+            amount=transaction.amount,
+            frequency=transaction.frequency,
+            start_day=transaction.start_day,
+            last_updated=get_current_utc_time(),
+        )
+
+        db.add(new_transaction_auto)
+        db.commit()
+        db.refresh(new_transaction_auto)
+
+        return {
+            "status": "success",
+            "message": "Automatic transaction created successfully.",
+        }
+
+    except SQLAlchemyError as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Database error: {str(error)}"
+        ) from error
+
+    except Exception as error:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Unexpected error: {str(error)}"
+        ) from error

@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel, Field
 
 from entity.utile_entity import AccountType
-from schema.transaction_schema import TransactionSchema
+from schema.transaction_schema import TransactionAutoSchema, TransactionSchema
 
 
 # pylint: disable=too-few-public-methods
@@ -29,6 +29,12 @@ class AccountSchema(BaseModel):
     )
     transactions_received: List[TransactionSchema] = Field(
         [], description="List of transactions received by this account"
+    )
+    sent_transactions_auto: List[TransactionAutoSchema] = Field(
+        [], description="List of automatic transactions sent from this account"
+    )
+    received_transactions_auto: List[TransactionAutoSchema] = Field(
+        [], description="List of automatic transactions received by this account"
     )
 
     class Config:

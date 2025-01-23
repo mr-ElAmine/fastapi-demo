@@ -1,16 +1,17 @@
 import * as Select from '@radix-ui/react-select';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { useState } from 'react';
 
 interface SelectOption {
   value: string;
-  label: string;
+  label: ReactNode;
 }
 
 interface CustomSelectProps {
   options: SelectOption[];
   placeholder?: string;
-  label: string;
+  label: ReactNode;
   onChange?: (value: string) => void;
   value?: string;
   defaultValue?: string;
@@ -29,7 +30,7 @@ export const CustomSelect = ({
   const [open, setOpen] = useState(false);
 
   return (
-    <div>
+    <div className="w-full">
       <label className="mb-1 block text-sm font-medium text-gray-700">
         {label}
       </label>

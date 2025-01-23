@@ -1,211 +1,180 @@
-import { Formik, Field, Form, ErrorMessage } from 'formik';
-import { ArrowRight, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import Card from '../atoms/Card';
+import { MyBeneficiaries, OtherBeneficiaries } from '@/api/Beneficiaries';
+import { makeTransaction } from '@/api/Transaction';
+import type { BeneficiaryType } from '@/schema/BeneficiariesSchema';
+import { TransactionCreateSchema } from '@/schema/TransactionSchema';
+
+import { Button } from '../atoms/Button';
+import Input from '../atoms/Input';
+import { CustomSelect } from '../atoms/Select';
 
 const TransfersForm = () => {
-  const accounts = [
-    {
-      title: 'Compte courant',
-      balance: '1234,56€',
-      iban: 'FR76 1234 4321 0987...',
-    },
-    {
-      title: 'Compte épargne',
-      balance: '567,89€',
-      iban: 'FR76 8765 4321 1234...',
-    },
-    {
-      title: 'Compte épargne',
-      balance: '567,89€',
-      iban: 'FR76 8765 4321 1234...',
-    },
-  ];
+  const navigate = useNavigate();
 
-  const recipients = [
-    {
-      name: 'Voiture',
-      iban: 'FR76 1234 4321 0987...',
-    },
-    {
-      name: 'Compte épargne',
-      iban: 'FR76 8765 4321 1234...',
-    },
-    {
-      name: 'Compte épargne',
-      iban: 'FR76 8765 4321 1234...',
-    },
-  ];
+  const [myBeneficiaries, setMyBeneficiaries] = useState<BeneficiaryType[]>([]);
+  const [otherBeneficiaries, setOtherBeneficiaries] = useState<
+    BeneficiaryType[]
+  >([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [selectedMyBeneficiary, setSelectedMyBeneficiary] = useState<
+    string | undefined
+  >();
+  const [selectedOtherBeneficiary, setSelectedOtherBeneficiary] = useState<
+    string | undefined
+  >();
+  const [formData, setFormData] = useState({
+    amount: '',
+    label: '',
+  });
+  const [formMessage, setFormMessage] = useState<string | null>(null);
 
-  const [selectedAccount, setSelectedAccount] = useState(accounts[0]);
-  const [selectedRecipient, setSelectedRecipient] = useState(recipients[0]);
-  const [isAccountDropdownOpen, setIsAccountDropdownOpen] = useState(false);
-  const [isRecipientDropdownOpen, setIsRecipientDropdownOpen] = useState(false);
+  useEffect(() => {
+    const fetchBeneficiaries = async () => {
+      try {
+        const myData = await MyBeneficiaries();
+        const otherData = await OtherBeneficiaries();
 
-  const toggleAccountDropdown = () => {
-    setIsAccountDropdownOpen((prev) => !prev);
+        setMyBeneficiaries(myData);
+        setOtherBeneficiaries(otherData);
+      } catch (error) {
+        console.error(error);
+        setFormMessage('Erreur lors du chargement des bénéficiaires.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchBeneficiaries();
+  }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const toggleRecipientDropdown = () => {
-    setIsRecipientDropdownOpen((prev) => !prev);
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Empêche le rechargement de la page
+
+    // Vérifiez que tous les champs obligatoires sont remplis
+    if (
+      !formData.amount ||
+      !selectedMyBeneficiary ||
+      !selectedOtherBeneficiary
+    ) {
+      setFormMessage('Veuillez remplir tous les champs obligatoires.');
+      return;
+    }
+
+    // Construction des données à valider
+    const transactionData = {
+      amount: parseFloat(formData.amount), // Convertir en nombre
+      id_account_sender: selectedMyBeneficiary,
+      id_account_receiver: selectedOtherBeneficiary,
+      label: formData.label || '', // Le label est facultatif
+    };
+
+    // Validation avec Zod
+    const parsedData = TransactionCreateSchema.safeParse(transactionData);
+
+    if (!parsedData.success) {
+      setFormMessage('Validation échouée. Vérifiez vos données.');
+      console.error('Validation errors:', parsedData.error.format());
+      return;
+    }
+
+    // Réinitialisez le message en cas de succès
+    setFormMessage(null);
+
+    try {
+      await makeTransaction({ data: parsedData.data });
+      setFormMessage('Transaction effectuée avec succès.');
+      void navigate('/transfers');
+    } catch (error) {
+      console.error('Erreur lors de la transaction :', error);
+      setFormMessage('Erreur lors de la soumission. Veuillez réessayer.');
+    }
   };
 
-  const handleAccountSelect = (account) => {
-    setSelectedAccount(account);
-    setIsAccountDropdownOpen(false);
-  };
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <p className="text-xl text-gray-500">Chargement des données...</p>
+      </div>
+    );
+  }
 
-  const handleRecipientSelect = (recipient) => {
-    setSelectedRecipient(recipient);
-    setIsRecipientDropdownOpen(false);
-  };
+  // Helper pour mapper les bénéficiaires vers des options de dropdown
+  const mapToOptions = (beneficiaries: BeneficiaryType[]) =>
+    beneficiaries.map((b) => ({
+      value: b.beneficiary_account_id,
+      label: (
+        <div className="flex flex-col items-start justify-start">
+          <h3 className="text-lg font-semibold">{b.name}</h3>
+          <span className="mt-2 block text-sm hover:text-gray-50">
+            {b.beneficiary_account_id}
+          </span>
+        </div>
+      ),
+    }));
 
-  const handleSubmit = (values) => {
-    console.log('Form submitted with values:', values);
-  };
+  const myBeneficiaryOptions = mapToOptions(myBeneficiaries);
+  const otherBeneficiaryOptions = mapToOptions(otherBeneficiaries);
 
   return (
-    <div className="mx-auto w-full max-w-4xl">
-      <Formik
-        initialValues={{
-          amount: '',
-          label: '',
-        }}
-        onSubmit={handleSubmit}
-      >
-        {() => (
-          <Form className="space-y-6">
-            <div className="flex items-stretch space-x-4">
-              {/* Compte sélectionné */}
-              <div className="relative w-1/2">
-                <div
-                  onClick={toggleAccountDropdown}
-                  className="h-full cursor-pointer rounded-md border border-gray-300 shadow-md"
-                >
-                  <Card className="h-full">
-                    <div className="flex h-full flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          {selectedAccount.title}
-                        </h3>
-                        <ChevronDown className="h-5 w-5" />
-                      </div>
-                      <div className="mt-2">
-                        <span className="text-sm text-gray-500">
-                          {selectedAccount.iban}
-                        </span>
-                        <span className="block text-2xl font-bold">
-                          {selectedAccount.balance}
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-                {isAccountDropdownOpen && (
-                  <div className="absolute z-20 mt-2 w-full rounded-md border border-gray-300 bg-white shadow-lg">
-                    {accounts.map((account, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleAccountSelect(account)}
-                        className="cursor-pointer p-4 hover:bg-gray-100"
-                      >
-                        <Card>
-                          <h3 className="text-lg font-semibold">
-                            {account.title}
-                          </h3>
-                          <div className="mt-2">
-                            <span className="text-sm text-gray-500">
-                              {account.iban}
-                            </span>
-                            <span className="block text-2xl font-bold">
-                              {account.balance}
-                            </span>
-                          </div>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+    <div>
+      <h1 className="mb-4 text-xl font-bold">Transfers Form</h1>
+      {formMessage && (
+        <p className="mt-4 text-sm text-red-600">{formMessage}</p>
+      )}
+      <form className="flex w-full flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="flex items-center gap-4">
+          <CustomSelect
+            label=""
+            options={myBeneficiaryOptions}
+            placeholder="Select from My Beneficiaries"
+            value={selectedMyBeneficiary}
+            onChange={(value) => setSelectedMyBeneficiary(value)}
+            className="mb-4"
+          />
+          <ArrowRight size={50} />
+          <CustomSelect
+            label=""
+            options={[...myBeneficiaryOptions, ...otherBeneficiaryOptions]}
+            placeholder="Select from Other Beneficiaries"
+            value={selectedOtherBeneficiary}
+            onChange={(value) => setSelectedOtherBeneficiary(value)}
+            className="mb-4"
+          />
+        </div>
+        <Input
+          id="amount"
+          type="number"
+          label="Montant"
+          placeholder="Entrez le montant"
+          value={formData.amount}
+          onChange={handleChange}
+          message={formMessage && !formData.amount ? formMessage : ''}
+          messageType="error"
+          className="mb-4"
+        />
 
-              <div className="flex items-center">
-                <ArrowRight className="h-6 w-6 text-gray-500" />
-              </div>
+        <Input
+          id="label"
+          type="text"
+          label="Libellé"
+          placeholder="Entrez le libellé"
+          value={formData.label}
+          onChange={handleChange}
+          className="mb-4"
+        />
 
-              <div className="relative w-1/2">
-                <div
-                  onClick={toggleRecipientDropdown}
-                  className="h-full cursor-pointer rounded-md border border-gray-300 shadow-md"
-                >
-                  <Card>
-                    <div className="flex h-full flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold">
-                          {selectedRecipient.name}
-                        </h3>
-                        <ChevronDown className="h-5 w-5" />
-                      </div>
-                      <span className="mt-2 block text-sm text-gray-500">
-                        {selectedRecipient.iban}
-                      </span>
-                    </div>
-                  </Card>
-                </div>
-                {isRecipientDropdownOpen && (
-                  <div className="absolute z-20 mt-2 w-full rounded-md border border-gray-300 bg-white shadow-lg">
-                    {recipients.map((recipient, index) => (
-                      <div
-                        key={index}
-                        onClick={() => handleRecipientSelect(recipient)}
-                        className="cursor-pointer p-4 hover:bg-gray-100"
-                      >
-                        <Card>
-                          <h3 className="text-lg font-semibold">
-                            {recipient.name}
-                          </h3>
-                          <span className="mt-2 block text-sm text-gray-500">
-                            {recipient.iban}
-                          </span>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="mb-4">
-              <Field
-                type="number"
-                id="amount"
-                name="amount"
-                placeholder="Montant"
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
-              />
-              <ErrorMessage
-                name="amount"
-                component="div"
-                className="mt-1 text-sm text-red-600"
-              />
-            </div>
-            <div className="mb-4">
-              <Field
-                type="text"
-                id="label"
-                name="label"
-                placeholder="Libellé (facultatif)"
-                className="w-full rounded-md border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-blue-500"
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full rounded-md bg-blue-600 py-2 text-white hover:bg-blue-700"
-            >
-              Confirmer
-            </button>
-          </Form>
-        )}
-      </Formik>
+        <Button type="submit" variant="outline">
+          Confirmer
+        </Button>
+      </form>
     </div>
   );
 };

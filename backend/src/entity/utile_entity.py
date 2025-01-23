@@ -8,6 +8,8 @@ class State(enum.Enum):
     CANCELLED = "cancelled"
     REDIRECT = "redirect"
     CLOSE = "close"
+    AUTO = "auto"
+    AUTO_FAIL = "auto_fail"
 
 
 # pylint: disable=too-few-public-methods
@@ -25,3 +27,9 @@ class AccountType(enum.Enum):
     CEL = "housing savings account"  # Compte Épargne Logement
     LIVRET_A = "livret A"  # Livret A
     YOUTH_SAVINGS = "youth savings"  # Livret Jeune
+
+
+class FrequencyEnum(enum.Enum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
