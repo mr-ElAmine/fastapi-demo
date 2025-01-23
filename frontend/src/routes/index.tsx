@@ -4,6 +4,7 @@ import Accounts from '@/components/pages/Accounts';
 import Home from '@/components/pages/Home';
 import Login from '@/components/pages/Login';
 import NotFound from '@/components/pages/NotFound';
+import Profile from '@/components/pages/Profile';
 import Register from '@/components/pages/Register';
 import Transfers from '@/components/pages/Virements';
 
@@ -38,11 +39,7 @@ const RoutesApp = () => {
         },
         {
           path: '/profile',
-          element: <div>User Profile</div>,
-        },
-        {
-          path: '/logout',
-          element: <div>Logout</div>,
+          element: <Profile />,
         },
       ],
     },

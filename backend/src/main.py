@@ -9,7 +9,7 @@ from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
-from entrypoints import (
+from src.entrypoints import (
     account_entrypoints,
     auth_entrypoints,
     beneficiary_entrypoints,
