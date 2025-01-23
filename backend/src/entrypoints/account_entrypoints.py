@@ -10,7 +10,8 @@ from entity.account_entity import Account
 from entity.beneficiary_entity import Beneficiary
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
-from entity.utile_entity import State
+from entity.utile_entity import AccountType, State
+from schema.account_schema import CreateAccountSchema
 from utile import generate_iban, get_current_user, get_current_utc_time
 
 router = APIRouter()
@@ -18,6 +19,7 @@ router = APIRouter()
 
 @router.post("/create-account")
 def create_account(
+    new_account_data: CreateAccountSchema,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
@@ -31,20 +33,27 @@ def create_account(
             detail="You are not authorised.",
         )
 
+    if new_account_data.type == AccountType.CHECKING:
+        raise HTTPException(
+            status_code=403,
+            detail="You are not authorised to create this account type.",
+        )
+
     try:
         current_time = datetime.now(timezone.utc)
         new_account = Account(
             id=generate_iban(),
             user_id=current_user.id,
+            name=new_account_data.name,
             balance=0,
-            state=True,
             is_main=False,
+            type=new_account_data.type,
             date=current_time,
         )
         new_beneficiary = Beneficiary(
             added_by_user_id=current_user.id,
             beneficiary_account_id=new_account.id,
-            name="ton compte",
+            name=new_account_data.name,
         )
         save(database_session, new_account)
         save(database_session, new_beneficiary)
@@ -85,6 +94,7 @@ def get_account(
         "state": account.state,
         "is_main": account.is_main,
         "created_at": account.date,
+        "type": account.type,
     }
 
 
@@ -107,6 +117,8 @@ def get_accounts(
             "state": account.state,
             "is_main": account.is_main,
             "created_at": account.date,
+            "type": account.type,
+            "name": account.name
         }
         for account in accounts
     ]

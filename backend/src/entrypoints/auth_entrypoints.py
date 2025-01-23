@@ -1,14 +1,17 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
+
 from database.main_database import get_database
 from entity.account_entity import Account
+from entity.beneficiary_entity import Beneficiary
 from entity.deposit_entity import Deposit
 from entity.user_entity import User
+from entity.utile_entity import AccountType
 from schema.user import LoginSchema, ResetPasswordSchema, UserSchema
-from utile import create_access_token, generate_iban, hash_password, verify_password, get_current_user
+from utile import create_access_token, generate_iban, get_current_user, hash_password, verify_password
 
 router = APIRouter()
 
@@ -25,7 +28,7 @@ def login_user(
     if not verify_password(user_data.password, user.password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    access_token = create_access_token(data={"sub": user.email})
+    access_token = create_access_token(data={"sub": user.email, "email": user.email, "id": user.id})
 
     return {
         "status": "success",
@@ -58,13 +61,22 @@ def register_user(
     new_account = Account(
         id=generate_iban(),
         user_id=new_user.id,
+        name="Checking account",
         balance=0,
-        state=True,
         is_main=True,
+        type=AccountType.CHECKING,
         date=current_time,
     )
+
     database_session.add(new_account)
     database_session.flush()
+
+    new_beneficiary = Beneficiary(
+        added_by_user_id=new_user.id,
+        beneficiary_account_id=new_account.id,
+        name=new_account.name,
+    )
+    database_session.add(new_beneficiary)
 
     new_account.balance = 100
     database_session.add(new_account)
@@ -78,10 +90,7 @@ def register_user(
 
     database_session.commit()
 
-    return {
-        "status": "success", 
-        "message": "User created successfully"
-    }
+    return {"status": "success", "message": "User created successfully"}
 
 
 @router.post("/change-password")
@@ -94,27 +103,25 @@ def change_password(
         user = database_session.query(User).filter(User.id == current_user.id).first()
         if not user:
             raise HTTPException(status_code=404, detail="User does not exist.")
-        
+
         if not verify_password(user_data.old_password, user.password):
             raise HTTPException(status_code=400, detail="Old password is incorrect.")
-        
+
         user.password = hash_password(user_data.new_password)
         database_session.add(user)
         database_session.commit()
-        
 
         return {
             "status": "success",
             "message": "Password changed successfully.",
         }
-        
+
     except SQLAlchemyError as error:
         database_session.rollback()
         raise HTTPException(
             status_code=500, detail=f"Database error: {str(error)}"
         ) from error
 
-    
     except Exception as error:
         raise HTTPException(
             status_code=500, detail=f"Unexpected error: {str(error)}"

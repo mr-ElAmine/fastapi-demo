@@ -1,22 +1,62 @@
-import MainLayout from '@/components/templates/MainLayout.tsx';
+import { useEffect, useState } from 'react';
 
-import { Button } from '../atoms/Button';
+import { GetAccounts } from '@/api/Accounts';
+import MainLayout from '@/components/templates/MainLayout.tsx';
+import type { AccountType } from '@/schema/AccountsSchema';
+
+import { DialogAddAccounts } from '../molecules/DialogAddAccounts';
 import AccountsCard from '../organisms/AccountsCard';
 
 const Accounts = () => {
+  const [accounts, setAccounts] = useState<AccountType[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const fetchedAccounts = await GetAccounts();
+        setAccounts(fetchedAccounts);
+      } catch (error) {
+        console.error('Failed to fetch accounts:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchAccounts();
+  }, []);
+
+  const totalBalance = accounts.reduce(
+    (sum, account) => sum + account.balance,
+    0
+  );
+
+  if (loading) {
+    return (
+      <MainLayout>
+        <div className="flex h-screen items-center justify-center">
+          <p className="text-xl text-gray-500">Loading accounts...</p>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
     <MainLayout>
-      <div className="relative">
-        <h1 className="mb-4 text-5xl font-bold text-gray-800">My Accounts</h1>
-        <p className="mb-6 text-xl text-gray-500">Total Balance : 884852495€</p>
-        <Button
-          onClick={() => alert('New Account clicked!')}
-          className="absolute right-0 top-0 rounded-lg bg-blue-600 text-xl text-white"
-        >
-          New Account
-        </Button>
+      <div>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="mb-4 text-5xl font-bold text-gray-800">
+              My Accounts
+            </h1>
+            <p className="mb-6 text-xl text-gray-500">
+              Total Balance: {totalBalance.toLocaleString()}€
+            </p>
+          </div>
+          <DialogAddAccounts />
+        </div>
 
-        <AccountsCard />
+        <AccountsCard data={accounts} />
       </div>
     </MainLayout>
   );

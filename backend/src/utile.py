@@ -11,7 +11,7 @@ from stdnum import iban
 from database.main_database import get_database
 from entity.user_entity import User
 
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = "d2c4f8d9e4e7b6e6c9a2f8d9e4e7b6e6c9a2f8d9e4e7b6e6c9a2f8d9e4e7b6e6"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10_000
 
