@@ -126,7 +126,7 @@ const FormRegister = () => {
             onClick={togglePasswordVisibility}
             className="absolute right-3 top-[33px] text-sm text-gray-600 hover:text-gray-800"
           >
-            {showPassword ? <EyeOff /> : <Eye />}
+            {showPassword ? <Eye /> : <EyeOff />}
           </button>
         </div>
         <div className="relative">
@@ -149,7 +149,7 @@ const FormRegister = () => {
             onClick={toggleConfirmPasswordVisibility}
             className="absolute right-3 top-[33px] text-sm text-gray-600 hover:text-gray-800"
           >
-            {showConfirmPassword ? <EyeOff /> : <Eye />}
+            {showConfirmPassword ? <Eye /> : <EyeOff />}
           </button>
         </div>
         <Button disabled={loading} type="submit" variant="outline">

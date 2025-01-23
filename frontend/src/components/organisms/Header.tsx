@@ -31,7 +31,7 @@ export function Header() {
   return (
     <aside className="flex h-screen w-80 flex-col border-e-4 border-black bg-white text-gray-800 shadow-lg">
       {/* Titre / Logo */}
-      <div className="bg-gray-100 p-4 text-2xl font-bold">Banck App</div>
+      <div className="bg-gray-100 p-4 text-2xl font-bold">Bankulin</div>
 
       {/* Liens de navigation */}
       <nav className="flex-1 p-4">
@@ -55,12 +55,12 @@ export function Header() {
       {/* Pied de page */}
       <div className="border-t-2 border-black p-4">
         <div className="flex items-center justify-between gap-2 rounded p-2 hover:bg-gray-200">
-          <Link to="/profil" className="flex w-full justify-start">
+          <Link to="/profile" className="flex w-full justify-start">
             <div className="flex items-center justify-center gap-4">
               <div>
                 <CircleUserRound />
               </div>
-              Profil
+              Profile
             </div>
           </Link>
           <Button
