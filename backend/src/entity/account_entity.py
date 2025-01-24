@@ -1,5 +1,7 @@
+from uuid import UUID
 from sqlalchemy import Boolean, Column, DateTime, Enum, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
+import uuid
 
 from database.main_database import Base
 from entity.utile_entity import AccountType
@@ -17,6 +19,7 @@ class Account(Base):
     is_main = Column(Boolean, nullable=False, default=False)
     date = Column(DateTime, nullable=False)
     type = Column(Enum(AccountType), default=AccountType.SAVINGS, nullable=False)
+    uuid = Column(String(36), default=lambda: str(uuid.uuid4()), unique=True, nullable=False)
 
     # Relations avec Transaction
     transactions_sent = relationship(

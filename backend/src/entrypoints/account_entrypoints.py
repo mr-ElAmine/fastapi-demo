@@ -113,6 +113,7 @@ def get_accounts(
     return [
         {
             "id": account.id,
+            "uuid": account.uuid,
             "balance": account.balance,
             "state": account.state,
             "is_main": account.is_main,

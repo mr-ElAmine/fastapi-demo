@@ -221,9 +221,19 @@ def get_transactions(
         .all()
     )
 
+    pending_transactions = (
+        db.query(TransactionPending)
+        .filter(
+            or_(
+                TransactionPending.id_account_sender == account_id,
+                TransactionPending.id_account_receiver == account_id,
+            )
+        )
+        .all()
+    )
+
     deposits = db.query(Deposit).filter(Deposit.account_id == account_id).all()
 
-    # Combine and sort all operations by date
     combined_operations = [
         {
             "type": "transaction",
@@ -235,6 +245,16 @@ def get_transactions(
             "label": transaction.label,
         }
         for transaction in transactions
+    ] + [
+        {
+            "type": "pending_transaction",
+            "amount": transaction.amount,
+            "sender": transaction.id_account_sender,
+            "receiver": transaction.id_account_receiver,
+            "date": transaction.date,
+            "label": transaction.label,
+        }
+        for transaction in pending_transactions
     ] + [
         {
             "type": "deposit",
