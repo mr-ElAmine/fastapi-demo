@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 import config from '@/config';
-import type { AccountType, CreateAccountType } from '@/schema/AccountsSchema';
+import type {
+  AccountType,
+  CloseAccountType,
+  CreateAccountType,
+} from '@/schema/AccountsSchema';
 import { AccountsArraySchema } from '@/schema/AccountsSchema';
 
 export async function GetAccounts(): Promise<AccountType[]> {
@@ -32,11 +36,12 @@ export async function CreatesAccounts({
 }
 
 export async function CloseAccounts({
-  accountId,
+  data,
 }: {
-  accountId: string;
+  data: CloseAccountType;
 }): Promise<void> {
   await axios.post(
-    `${config.api.baseUrl}${config.api.closeAccountsEndpoint}${accountId}`
+    `${config.api.baseUrl}${config.api.closeAccountsEndpoint}${data.account_id}`,
+    { ...data }
   );
 }

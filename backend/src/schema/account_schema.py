@@ -50,3 +50,8 @@ class CreateAccountSchema(BaseModel):
 
     class Config:
         from_attributes = True
+
+# pylint: disable=too-few-public-methods
+class CloseAccountSchema(BaseModel):
+    account_id: str = Field(..., description="Unique identifier for the account to be closed")
+    password: str = Field(..., min_length=1, description="Password for authentication")

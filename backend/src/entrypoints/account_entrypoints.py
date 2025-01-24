@@ -11,8 +11,8 @@ from entity.beneficiary_entity import Beneficiary
 from entity.transaction_entity import Transaction, TransactionPending
 from entity.user_entity import User
 from entity.utile_entity import AccountType, State
-from schema.account_schema import CreateAccountSchema
-from utile import generate_iban, get_current_user, get_current_utc_time
+from schema.account_schema import CloseAccountSchema, CreateAccountSchema
+from utile import generate_iban, get_current_user, get_current_utc_time, verify_password
 
 router = APIRouter()
 
@@ -127,12 +127,12 @@ def get_accounts(
 
 @router.post("/close-account/{account_id}")
 def close_account(
-    account_id: str,
+    data_account: CloseAccountSchema,
     database_session: Session = Depends(get_database),
     current_user: User = Depends(get_current_user),
 ):
     # Retrieve the account by ID
-    account = database_session.query(Account).filter(Account.id == account_id).first()
+    account = database_session.query(Account).filter(Account.id == data_account.account_id).first()
     if not account:
         raise HTTPException(status_code=404, detail="Account does not exist.")
 
@@ -142,6 +142,11 @@ def close_account(
             status_code=403,
             detail="You are not authorised to close this account.",
         )
+    
+    user = database_session.query(User).filter(User.id == current_user.id).first()
+
+    if not verify_password(data_account.password, user.password):
+        raise HTTPException(status_code=400, detail="password is incorrect.")
 
     # Ensure the account is not already closed
     if not account.state:
@@ -160,8 +165,8 @@ def close_account(
     is_involved = (
         database_session.query(TransactionPending)
         .filter(
-            (TransactionPending.id_account_sender == account_id)
-            | (TransactionPending.id_account_receiver == account_id)
+            (TransactionPending.id_account_sender == data_account.account_id)
+            | (TransactionPending.id_account_receiver == data_account.account_id)
         )
         .first()
         is not None
@@ -194,7 +199,7 @@ def close_account(
             amount=account.balance,
             id_account_sender=account.id,
             id_account_receiver=main_account.id,
-            state=State.CONFIRMED,
+            state=State.CLOSE,
             date=get_current_utc_time(),
         )
         database_session.add(confirmed_transaction)
@@ -212,7 +217,7 @@ def close_account(
 
         return {
             "status": "success",
-            "message": (f"Account {account_id} successfully closed."),
+            "message": (f"Account {data_account.account_id} successfully closed."),
         }
 
     except SQLAlchemyError as error:

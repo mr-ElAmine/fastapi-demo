@@ -2,7 +2,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import Accounts from '@/components/pages/Accounts';
 import { AccountsTransactions } from '@/components/pages/AccountsTransactions';
-import Home from '@/components/pages/Home';
+import Dashboard from '@/components/pages/Dashboard';
 import Login from '@/components/pages/Login';
 import NotFound from '@/components/pages/NotFound';
 import Profile from '@/components/pages/Profile';
@@ -30,7 +30,7 @@ const RoutesApp = () => {
       children: [
         {
           path: '/',
-          element: <Home />,
+          element: <Dashboard />,
         },
         {
           path: '/accounts',

@@ -17,7 +17,7 @@ export function Header() {
   const navigate = useNavigate();
 
   const navLinks = [
-    { to: '/dashboard', label: 'Dashboard', icon: <ChartNoAxesColumn /> },
+    { to: '/', label: 'Dashboard', icon: <ChartNoAxesColumn /> },
     { to: '/transactions', label: 'Transactions', icon: <ArrowRightLeft /> },
     { to: '/accounts', label: 'My Accounts', icon: <CreditCard /> },
     { to: '/transfers', label: 'Transfers', icon: <Landmark /> },

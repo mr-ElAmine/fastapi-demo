@@ -53,3 +53,10 @@ export const CreateAccountSchema = z.object({
 });
 
 export type CreateAccountType = z.infer<typeof CreateAccountSchema>;
+
+export const CloseAccountSchema = z.object({
+  account_id: z.string().min(1, { message: 'Account ID is required' }),
+  password: z.string().min(1, { message: 'Password is required' }),
+});
+
+export type CloseAccountType = z.infer<typeof CloseAccountSchema>;
