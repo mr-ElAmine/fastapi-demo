@@ -45,7 +45,7 @@ const Transfers = () => {
     const interval = setInterval(async () => {
       const transactionsData = await pendingTransactions();
       setTransactions(transactionsData);
-    }, 10000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import config from '@/config';
-import type { LoginType } from '@/schema/LoginSchema';
+import type { LoginType, PasswordType } from '@/schema/LoginSchema';
 
 export async function Login(formData: LoginType): Promise<string | null> {
   const response = await axios.post(
@@ -16,4 +16,18 @@ export async function Login(formData: LoginType): Promise<string | null> {
   }
 
   return response.data.token as string;
+}
+
+export async function changePassword({
+  data,
+}: {
+  data: PasswordType;
+}): Promise<void> {
+  await axios.post(
+    `${config.api.baseUrl}${config.api.changePasswordEndpoint}`,
+    {
+      old_password: data.oldPassword,
+      new_password: data.newPassword,
+    }
+  );
 }

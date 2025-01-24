@@ -5,8 +5,12 @@ import type {
   TransactionPendingType,
   TransactionCreateType,
   TransactionAutoType,
+  CombinedOperationType,
 } from '@/schema/TransactionSchema';
-import { TransactionPendingListSchema } from '@/schema/TransactionSchema';
+import {
+  CombinedOperationsSchema,
+  TransactionPendingListSchema,
+} from '@/schema/TransactionSchema';
 
 // Fonction pour effectuer une transaction
 export async function makeTransaction({
@@ -53,4 +57,21 @@ export const CreateTransactionAuto = async ({
     `${config.api.baseUrl}${config.api.makeTransactionAutoEndpoint}`,
     { ...data }
   );
+};
+
+export const getTransactions = async ({
+  accountId,
+}: {
+  accountId: string;
+}): Promise<CombinedOperationType[]> => {
+  try {
+    const response = await axios.get(
+      `${config.api.baseUrl}${config.api.transactionsEndpoint}${accountId}`
+    );
+
+    return CombinedOperationsSchema.parse(response.data);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des transactions:', error);
+    return [];
+  }
 };

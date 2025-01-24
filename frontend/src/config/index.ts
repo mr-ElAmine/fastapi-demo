@@ -3,6 +3,7 @@ const config = {
     baseUrl: 'http://127.0.0.1:8000/api',
     loginEndpoint: '/login',
     registerEndpoint: '/register',
+    changePasswordEndpoint: '/change-password',
     myBeneficiariesEndpoint: '/my-beneficiaries',
     otherBeneficiariesEndpoint: '/other-beneficiaries',
     addBeneficiariesEndpoint: '/add-beneficiaries',
@@ -13,6 +14,7 @@ const config = {
     pendingTransactionsEndpoint: '/pending-transactions',
     cancelTransactionEndpoint: '/cancel-transaction/',
     makeTransactionAutoEndpoint: '/make-transaction-auto',
+    transactionsEndpoint: '/transactions/',
   },
 };
 

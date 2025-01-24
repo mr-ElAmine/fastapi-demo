@@ -1,11 +1,13 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import Accounts from '@/components/pages/Accounts';
+import { AccountsTransactions } from '@/components/pages/AccountsTransactions';
 import Home from '@/components/pages/Home';
 import Login from '@/components/pages/Login';
 import NotFound from '@/components/pages/NotFound';
 import Profile from '@/components/pages/Profile';
 import Register from '@/components/pages/Register';
+import Transactions from '@/components/pages/Transactions';
 import TransfersMoney from '@/components/pages/TransfersMoney';
 import Transfers from '@/components/pages/Virements';
 
@@ -28,19 +30,27 @@ const RoutesApp = () => {
       children: [
         {
           path: '/',
-          element: <Home />, // Page d'accueil utilisateur
+          element: <Home />,
         },
         {
           path: '/accounts',
-          element: <Accounts />, // Comptes
+          element: <Accounts />,
         },
         {
           path: '/transfers',
-          element: <Transfers />, // Virements
+          element: <Transfers />,
         },
         {
           path: '/transfers-money',
           element: <TransfersMoney />,
+        },
+        {
+          path: '/transactions',
+          element: <Transactions />,
+        },
+        {
+          path: '/accounts/:uuid',
+          element: <AccountsTransactions />,
         },
         {
           path: '/profile',

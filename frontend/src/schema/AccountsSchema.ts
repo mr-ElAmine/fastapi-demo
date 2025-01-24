@@ -34,6 +34,7 @@ export enum AccountTypeEnum {
 
 export const AccountSchema = z.object({
   id: z.string().min(1).max(34),
+  uuid: z.string().min(1),
   name: z.string().min(1).max(100),
   balance: z.number().default(0.0),
   state: z.boolean().default(true),

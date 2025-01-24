@@ -39,3 +39,57 @@ export const TransactionAutoSchema = z.object({
 });
 
 export type TransactionAutoType = z.infer<typeof TransactionAutoSchema>;
+
+const StateEnum = z.enum([
+  'pending',
+  'confirmed',
+  'cancelled',
+  'redirect',
+  'close',
+  'auto',
+  'auto_fail',
+]);
+
+// Schéma pour les transactions
+const TransactionSchema = z.object({
+  type: z.literal('transaction'),
+  amount: z.number(),
+  sender: z.string(), // ID du compte expéditeur
+  receiver: z.string(), // ID du compte destinataire
+  state: StateEnum, // État de la transaction
+  date: z.string().or(z.date()), // Date au format ISO ou objet Date
+  label: z.string().nullable(), // Libellé, optionnel ou null
+});
+
+// Schéma pour les transactions en attente
+const PendingTransactionSchema = z.object({
+  type: z.literal('pending_transaction'),
+  amount: z.number(),
+  sender: z.string(), // ID du compte expéditeur
+  receiver: z.string(), // ID du compte destinataire
+  date: z.string().or(z.date()), // Date au format ISO ou objet Date
+  label: z.string().nullable(), // Libellé, optionnel ou null
+});
+
+// Schéma pour les dépôts
+const DepositSchema = z.object({
+  type: z.literal('deposit'),
+  amount: z.number(),
+  state: z.boolean(), // État du dépôt
+  date: z.string().or(z.date()), // Date au format ISO ou objet Date
+});
+
+// Union des schémas
+const CombinedOperationSchema = z.discriminatedUnion('type', [
+  TransactionSchema,
+  PendingTransactionSchema,
+  DepositSchema,
+]);
+
+// Schéma pour un tableau d'opérations combinées
+export const CombinedOperationsSchema = z.array(CombinedOperationSchema);
+
+export type TransactionType = z.infer<typeof TransactionSchema>;
+export type PendingTransactionType = z.infer<typeof PendingTransactionSchema>;
+export type DepositType = z.infer<typeof DepositSchema>;
+export type CombinedOperationType = z.infer<typeof CombinedOperationSchema>;
